@@ -39,7 +39,9 @@ def test_visual_report_is_self_contained_and_uses_cents_per_100(tmp_path: Path) 
     assert "JEV" in rendered
     assert "Candidate graph" in rendered
     assert "4 evidence-" in rendered
-    assert "O(nk)" in rendered
+    assert "O(n²)" not in rendered
+    assert "O(nk)" not in rendered
+    assert "ONE RELATION CHOICE" in rendered
     assert "GENERIC LLM PIPELINE" in rendered
     assert "LLM extracts entities" in rendered
     assert "6.55× lower" in rendered
