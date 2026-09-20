@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-09-20",
-  "release": "v0.4.2",
+  "release": "v0.5.1",
   "supersedes_for_primary_comparison": "v0.4.0 chat results with provider-default reasoning",
   "task_mode": "direct_closed_set_relation_only",
   "fewrel": {
@@ -40,6 +40,7 @@
       "provider_reported_cost_usd": 0.0,
       "illustrative_input_list_price_equivalent_usd": 0.006561576,
       "illustrative_input_list_price_equivalent_per_planned_case_usd": 0.00004100985,
+      "illustrative_input_list_price_equivalent_per_100_planned_cases_cents": 0.4100985,
       "unknown_cost_requests": 1,
       "sanitized_raw_sha256": "7cc95149a388b86bb08bd750d01a4c6ccd87ed2d20a483e595019bd74f7bb557"
     },
@@ -56,6 +57,7 @@
       "output_tokens": 2592,
       "provider_reported_cost_usd": 0.019594,
       "provider_reported_cost_per_planned_case_usd": 0.0001224625,
+      "provider_reported_cost_per_100_planned_cases_cents": 1.224625,
       "unknown_cost_requests": 0,
       "sanitized_raw_sha256": "6b105193f5303fe8f32dfd95dc41c9dd5c4dfae317b980de6a1a778028619749"
     },
@@ -72,12 +74,20 @@
       "output_tokens": 2270,
       "provider_reported_cost_usd": 0.023389532,
       "provider_reported_cost_per_planned_case_usd": 0.000146184575,
+      "provider_reported_cost_per_100_planned_cases_cents": 1.46184575,
       "unknown_cost_requests": 0,
       "failure_modes": ["One known-cost prediction_outside_criteria receipt; the case was not retried."],
       "sanitized_raw_sha256": "31ac43744097f040a49d32e22c6549cfb1630178bea3b793896142b46e817165"
     }
   },
   "comparison_note": "Luna and DeepSeek were rerun with explicit reasoning.effort=none. Jev's native typed Choice protocol has no equivalent chat reasoning-effort field, so its unchanged v0.4.0 direct receipts are reused.",
+  "derived_comparisons": {
+    "luna_p95_latency_multiple_of_jev": 3.9419953596,
+    "deepseek_p95_latency_multiple_of_jev": 2.8816705336,
+    "luna_cost_per_100_multiple_of_jev_illustrative": 2.9861728341,
+    "deepseek_cost_per_100_multiple_of_jev_illustrative": 3.5646210606,
+    "note": "Latency ratios use measured p95 values. Cost ratios compare provider-reported chat receipts with Jev's illustrative input list-price equivalent; they are planning signals, not invoice-to-invoice comparisons."
+  },
   "cost_audit": {
     "controlled_chat_rerun_known_provider_cost_usd": 0.042983532,
     "all_v0_4_known_provider_cost_usd": 0.177021484,

@@ -1,6 +1,6 @@
 # Experiment protocol
 
-## Primary track: v0.4.2 controlled direct relation selection
+## Primary track: v0.5.1 controlled direct relation selection
 
 This protocol measures only relation identification for an already supplied directed candidate pair:
 
@@ -63,10 +63,10 @@ labeled support examples and five query decisions per request.
 
 - **Synthetic end to end:** repository-owned text, gazetteer entities, local candidate generation,
   keyword baseline, and optional Jev decisions.
-- **FewRel direct closed set (v0.4.2):** the primary track above: supplied entity pair, one opaque
+- **FewRel direct closed set (v0.5.1):** the primary track above: supplied entity pair, one opaque
   case per request, 16 relations-only choices, temperature zero, 4,096 chat output tokens, and
   explicit `reasoning.effort=none` for chat models.
-- **Chat-model comparison (v0.4.2):** the exact same FewRel sample, relation criteria, and opaque
+- **Chat-model comparison (v0.5.1):** the exact same FewRel sample, relation criteria, and opaque
   case ordering through Vercel AI Gateway to `openai/gpt-5.6-luna` and
   `deepseek/deepseek-v4.1-flash`. Chat models return only selected IDs; no self-reported
   probability is requested or compared with Jev probabilities.

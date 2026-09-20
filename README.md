@@ -15,7 +15,7 @@ It is designed for fixed or slowly changing ontologies where edge precision, sou
 reproducibility matter. It does **not** claim that model output is true, approved, or safe for
 consequential reuse.
 
-## v0.4.2 controlled direct relation-selection benchmark
+## v0.5.1 controlled direct relation-selection benchmark
 
 The current primary benchmark measures exactly one operation: relation identification for an
 already supplied candidate pair. Every model receives the same single case and must return one of
@@ -44,12 +44,19 @@ the gold relation) stays local to scoring. On pinned `train_wiki` (16 relations 
 | Input / output tokens | 156,228 / 29,404 | 82,418 / 2,592 | 83,739 / 2,270 |
 | Provider-reported cost | $0 | $0.019594 | $0.023389532 |
 | Jev illustrative input-price equivalent | $0.006561576 | — | — |
-| Cost / planned decision | $0.000041010 illustrative | $0.000122463 receipt | $0.000146185 receipt |
+| Cost / 100 planned decisions | 0.410¢ illustrative | 1.225¢ receipt | 1.462¢ receipt |
+
+On this controlled run, Luna's p95 latency was 3.94× Jev's and DeepSeek's was 2.88×; their
+normalized receipt costs were respectively 2.99× and 3.56× Jev's illustrative input-price
+equivalent. Jev's corresponding accuracy was lower, so these are operational cost/latency
+advantages rather than a general quality-ranking claim.
 
 The result is a narrow public-sample measurement, not a general model ranking or an end-to-end KG
 score. It does not measure entity extraction, candidate generation, negative rejection, graph
 truth, calibration, or human approval. The full protocol, failures, and cost audit are in
-[the results](docs/RESULTS.md) and [aggregate evidence](docs/evidence/direct-reasoning-none-2026-09-20.json).
+[the results](docs/RESULTS.md), [visual report](docs/report/README.md),
+[two-page PDF](output/pdf/jevgraph-v0.5.1-direct-relation-report.pdf), and
+[aggregate evidence](docs/evidence/direct-reasoning-none-2026-09-20.json).
 
 ## Why
 

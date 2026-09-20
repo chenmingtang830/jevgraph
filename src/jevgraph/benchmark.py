@@ -97,6 +97,14 @@ class BenchmarkResult:
             "provider_reported_cost_per_planned_case_usd": (
                 provider_reported_cost / self.planned_cases if self.planned_cases else None
             ),
+            # A per-decision dollar value is hard to read at this scale.  Keep the
+            # USD field above for machine consumers and publish the human-facing
+            # normalization as cents per 100 planned decisions.
+            "provider_reported_cost_per_100_planned_cases_cents": (
+                provider_reported_cost * 10_000 / self.planned_cases
+                if self.planned_cases
+                else None
+            ),
             "list_price_estimated_cost_usd": list_price_estimated_cost,
             "list_price_estimated_cost_requests": sum(
                 receipt.cost_basis == "list-price-estimate" for receipt in self.receipts
@@ -110,6 +118,15 @@ class BenchmarkResult:
                 total_input_tokens
                 * PRICE_PER_MILLION_INPUT_TOKENS
                 / 1_000_000
+                / self.planned_cases
+                if self.model == GatewayJevClient.model and self.planned_cases
+                else None
+            ),
+            "illustrative_jev_list_price_equivalent_per_100_planned_cases_cents": (
+                total_input_tokens
+                * PRICE_PER_MILLION_INPUT_TOKENS
+                / 1_000_000
+                * 10_000
                 / self.planned_cases
                 if self.model == GatewayJevClient.model and self.planned_cases
                 else None
