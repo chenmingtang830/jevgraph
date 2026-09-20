@@ -283,15 +283,30 @@
       <div class="docjev-intro">
         <div class="source-note"><strong>Adjacent evidence—not a JevGraph E2E score.</strong> JevGraph uses DocJev + LiteParse locally for parsing; its hosted classification and splitting are not invoked by the ingestion command.</div>
       </div>
-      <div class="docjev-grid" id="docjev-results"></div>
-      <div class="docjev-takeaways" id="docjev-takeaways"></div>
+      <div class="docjev-grid" id="docjev-results">
+        <article class="task-panel"><header><h3>Classify documents</h3><span>40 / 40 planned</span></header>
+          <div class="metric-group"><div class="metric-title"><span>First-pass quality</span></div><div class="compare-row jev"><b>Jev</b><div class="bar-track"><div class="bar-fill" style="--scale:1"></div></div><output>100%</output></div><div class="compare-row"><b>GPT-5.6 Luna</b><div class="bar-track"><div class="bar-fill" style="--scale:1"></div></div><output>100%</output></div></div>
+          <div class="metric-group"><div class="metric-title"><span>Decision p95</span></div><div class="compare-row jev"><b>Jev</b><div class="bar-track"><div class="bar-fill" style="--scale:.153"></div></div><output>184.5 ms</output></div><div class="compare-row"><b>GPT-5.6 Luna</b><div class="bar-track"><div class="bar-fill" style="--scale:1"></div></div><output>1,208.8 ms</output></div></div>
+          <div class="metric-group"><div class="metric-title"><span>Known API cost</span></div><div class="compare-row jev"><b>Jev</b><div class="bar-track"><div class="bar-fill" style="--scale:.206"></div></div><output>$0.005028</output></div><div class="compare-row"><b>GPT-5.6 Luna</b><div class="bar-track"><div class="bar-fill" style="--scale:1"></div></div><output>$0.024406</output></div></div>
+        </article>
+        <article class="task-panel"><header><h3>Split packets</h3><span>8 / 8 planned</span></header>
+          <div class="metric-group"><div class="metric-title"><span>First-pass quality</span></div><div class="compare-row jev"><b>Jev</b><div class="bar-track"><div class="bar-fill" style="--scale:.875"></div></div><output>87.5%</output></div><div class="compare-row"><b>GPT-5.6 Luna</b><div class="bar-track"><div class="bar-fill" style="--scale:1"></div></div><output>100%</output></div></div>
+          <div class="metric-group"><div class="metric-title"><span>Decision p95</span></div><div class="compare-row jev"><b>Jev</b><div class="bar-track"><div class="bar-fill" style="--scale:.156"></div></div><output>290 ms</output></div><div class="compare-row"><b>GPT-5.6 Luna</b><div class="bar-track"><div class="bar-fill" style="--scale:1"></div></div><output>1,862.7 ms</output></div></div>
+          <div class="metric-group"><div class="metric-title"><span>Known API cost</span></div><div class="compare-row jev"><b>Jev</b><div class="bar-track"><div class="bar-fill" style="--scale:.295"></div></div><output>$0.006635</output></div><div class="compare-row"><b>GPT-5.6 Luna</b><div class="bar-track"><div class="bar-fill" style="--scale:1"></div></div><output>$0.022488</output></div></div>
+        </article>
+      </div>
+      <div class="docjev-takeaways" id="docjev-takeaways"><div><span>CLASSIFY P95</span><strong>6.55× lower</strong></div><div><span>CLASSIFY COST</span><strong>4.85× lower</strong></div><div><span>SPLIT P95</span><strong>6.42× lower</strong></div><div><span>SPLIT QUALITY</span><strong>87.5% vs 100% exact</strong></div></div>
       <footer class="page-footer"><span>Decision latency excludes OCR. Costs are recorded estimates; local compute is excluded.</span><span><a id="docjev-source" href="#">Published DocJev report</a></span></footer>
     </section>
 
     <section class="page" id="relation" aria-labelledby="relation-title">
       <header class="topline"><div class="brand"><span class="brand-mark" aria-hidden="true"></span>JevGraph / direct relation benchmark</div><div class="meta">FewRel train_wiki · 160 planned · reasoning none</div></header>
       <div class="benchmark-head"><h2 id="relation-title"><span>2.9–3.9×</span> lower latency and cost signals—at lower accuracy.</h2><p>Same 160 supplied entity pairs, same 16 relation descriptions, one opaque case per request, temperature 0, sequential execution, and no retries or fallback.</p></div>
-      <div class="charts" id="relation-charts"></div>
+      <div class="charts" id="relation-charts">
+        <figure class="chart"><h3>p95 latency</h3><p class="chart-subtitle">Lower is better · milliseconds</p><div class="compare-row jev"><b>Jev</b><div class="bar-track"><div class="bar-fill" style="--scale:.254"></div></div><output>431 ms</output></div><div class="compare-row"><b>Luna</b><div class="bar-track"><div class="bar-fill" style="--scale:1"></div></div><output>1,699 ms</output></div><div class="compare-row"><b>DeepSeek</b><div class="bar-track"><div class="bar-fill" style="--scale:.731"></div></div><output>1,242 ms</output></div><figcaption>Jev: 431 ms · 3.94× below Luna and 2.88× below DeepSeek.</figcaption></figure>
+        <figure class="chart"><h3>Cost / 100 planned</h3><p class="chart-subtitle">Lower is better · cents</p><div class="compare-row jev"><b>Jev</b><div class="bar-track"><div class="bar-fill" style="--scale:.281"></div></div><output>0.410¢</output></div><div class="compare-row"><b>Luna</b><div class="bar-track"><div class="bar-fill" style="--scale:.838"></div></div><output>1.225¢</output></div><div class="compare-row"><b>DeepSeek</b><div class="bar-track"><div class="bar-fill" style="--scale:1"></div></div><output>1.462¢</output></div><figcaption>Jev illustrative; Luna and DeepSeek are provider receipts.</figcaption></figure>
+        <figure class="chart"><h3>Planned-case accuracy</h3><p class="chart-subtitle">Higher is better · uncovered cases count incorrect</p><div class="compare-row jev"><b>Jev</b><div class="bar-track"><div class="bar-fill" style="--scale:.940"></div></div><output>87.500%</output></div><div class="compare-row"><b>Luna</b><div class="bar-track"><div class="bar-fill" style="--scale:.960"></div></div><output>89.375%</output></div><div class="compare-row"><b>DeepSeek</b><div class="bar-track"><div class="bar-fill" style="--scale:1"></div></div><output>93.125%</output></div><figcaption>Accuracy gap: Jev −1.875 pp vs Luna; −5.625 pp vs DeepSeek.</figcaption></figure>
+      </div>
       <div class="benchmark-bottom">
         <div class="protocol"><div><b>TASK</b><span>Choose 1 of 16 relations</span></div><div><b>REQUESTS</b><span>160 per model · batch 1</span></div><div><b>FAILURES</b><span>Remain in denominator</span></div><div><b>COST</b><span>Per 100 planned cases</span></div></div>
         <div class="ledger"><h3>Failure ledger</h3><p><strong>Jev:</strong> one HTTP 503 with unknown cost; no retry; non-overlapping continuation.</p><p><strong>DeepSeek:</strong> one known-cost output outside criteria; receipt retained; no retry.</p></div>
@@ -300,10 +315,11 @@
     </section>
   </main>
   <script>
-    const report = __REPORT_DATA__;
+    const report = (() => { try { return __REPORT_DATA__; } catch { return null; } })();
     const format = new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 });
     const ratio = (a, b) => a / b;
 
+    if (report) {
     const docjevTasks = [
       ['classify', 'Classify documents', '40 / 40 planned'],
       ['split', 'Split packets', '8 / 8 planned']
@@ -352,6 +368,7 @@
     document.querySelector('#docjev-source').href = report.docjev.source_url;
     document.querySelector('#relation-evidence').href = report.evidenceUrl;
     document.querySelector('#release-link').href = report.releaseUrl;
+    }
 
     const pages = [...document.querySelectorAll('.page')];
     const navButtons = [...document.querySelectorAll('.page-nav button')];

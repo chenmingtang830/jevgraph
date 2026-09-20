@@ -40,6 +40,9 @@ def test_visual_report_is_self_contained_and_uses_cents_per_100(tmp_path: Path) 
     assert "Northstar" in rendered
     assert "Mira Chen" in rendered
     assert "O(nk)" in rendered
+    assert "6.55× lower" in rendered
+    assert "93.125%" in rendered
+    assert "if (report)" in rendered
     assert 'class="pipeline"' not in rendered
     assert rendered.count('class="page"') == 3
     assert "<link rel=\"stylesheet\"" not in rendered
