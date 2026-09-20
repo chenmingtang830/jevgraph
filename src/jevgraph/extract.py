@@ -6,7 +6,7 @@ from pathlib import Path
 
 import yaml
 
-from .models import CandidateEdge, Document, Entity, Mention
+from .models import CandidateEdge, Document, Entity, EvidenceSourceSpan, Mention
 from .ontology import Ontology
 
 
@@ -140,6 +140,32 @@ def generate_candidates(
                 evidence_start=evidence_start,
                 evidence_end=evidence_end,
                 allowed_relations=ontology.allowed(source.entity_type, target.entity_type),
+                evidence_source_spans=evidence_source_spans(
+                    document, evidence_start, evidence_end
+                ),
             )
         )
     return candidates
+
+
+def evidence_source_spans(
+    document: Document, evidence_start: int, evidence_end: int
+) -> tuple[EvidenceSourceSpan, ...]:
+    """Project a normalized evidence range onto canonical page-local offsets."""
+
+    spans: list[EvidenceSourceSpan] = []
+    for page in document.page_spans:
+        start = max(evidence_start, page.text_start)
+        end = min(evidence_end, page.text_end)
+        if start >= end:
+            continue
+        spans.append(
+            EvidenceSourceSpan(
+                page=page.page,
+                document_start=start,
+                document_end=end,
+                page_start=start - page.text_start,
+                page_end=end - page.text_start,
+            )
+        )
+    return tuple(spans)

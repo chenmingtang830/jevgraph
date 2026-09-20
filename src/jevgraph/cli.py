@@ -19,7 +19,7 @@ from .episodic import episodic_plan, merge_episodic_runs, run_episodic_benchmark
 from .export import export_csv, export_neo4j
 from .extract import load_entities
 from .fewrel import fetch_fewrel, sample_fewrel, sample_fewrel_episodes
-from .models import Document
+from .ingest import load_document
 from .ontology import Ontology
 from .providers import (
     CHAT_MODELS,
@@ -36,10 +36,12 @@ def parser() -> argparse.ArgumentParser:
         prog="jevgraph",
         description="Build evidence-backed candidate knowledge graphs with typed decisions.",
     )
-    root.add_argument("--version", action="version", version="jevgraph 0.4.2")
+    root.add_argument("--version", action="version", version="jevgraph 0.5.0")
     commands = root.add_subparsers(dest="command", required=True)
 
-    build = commands.add_parser("build", help="Build a candidate graph from one text document.")
+    build = commands.add_parser(
+        "build", help="Build a candidate graph from TXT, Markdown, PDF, DOCX, or PPTX."
+    )
     build.add_argument("input", type=Path)
     build.add_argument("--ontology", type=Path, required=True)
     build.add_argument("--entities", type=Path, required=True)
@@ -48,6 +50,8 @@ def parser() -> argparse.ArgumentParser:
     build.add_argument("--probability-threshold", type=float, default=0.85)
     build.add_argument("--confidence-threshold", type=float, default=0.80)
     build.add_argument("--max-neighbors", type=int, default=20)
+    build.add_argument("--cache-dir", type=Path)
+    build.add_argument("--no-cache", action="store_true")
     _live_arguments(build, include_batch_size=True)
 
     fetch = commands.add_parser("fetch-fewrel", help="Fetch pinned FewRel inputs.")
@@ -192,7 +196,11 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _build(args: argparse.Namespace) -> int:
-    document = Document(id=args.input.stem, text=args.input.read_text(encoding="utf-8"))
+    document = load_document(
+        args.input,
+        cache_dir=args.cache_dir,
+        use_cache=not args.no_cache,
+    )
     ontology = Ontology.load(args.ontology)
     entities = load_entities(args.entities)
     if args.provider == "jev":
@@ -218,6 +226,9 @@ def _build(args: argparse.Namespace) -> int:
             "edges": counts,
             "requests": len(result.receipts),
             "cost_usd": sum(r.cost_usd or 0 for r in result.receipts),
+            "source_sha256": document.source_sha256,
+            "canonical_sha256": document.canonical_sha256,
+            "pages": len(document.page_spans) or None,
         }
     )
     return 0

@@ -5,3 +5,7 @@ This product includes optional tooling for the FewRel dataset maintained by THUN
 not redistribute FewRel. Users download it directly from its upstream repository and must preserve
 the upstream license, attribution, and citation requirements.
 
+The optional `documents` extra installs DocJev at pinned revision
+9ed0fe05984ce1906af9272b8b400c8d46520f98. DocJev and its LiteParse dependency are distributed
+under their own open-source licenses. JevGraph uses DocJev only for local document conversion and
+OCR; it does not invoke DocJev's hosted classification or splitting pipeline.

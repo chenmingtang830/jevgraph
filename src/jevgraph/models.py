@@ -7,9 +7,35 @@ EdgeStatus = Literal["proposed", "review", "rejected"]
 
 
 @dataclass(frozen=True)
+class PageSpan:
+    """Map normalized document text back to one canonical source page."""
+
+    page: int
+    text_start: int
+    text_end: int
+    blank: bool = False
+
+
+@dataclass(frozen=True)
+class EvidenceSourceSpan:
+    """The part of an evidence window contributed by one source page."""
+
+    page: int
+    document_start: int
+    document_end: int
+    page_start: int
+    page_end: int
+
+
+@dataclass(frozen=True)
 class Document:
     id: str
     text: str
+    source_name: str | None = None
+    source_sha256: str | None = None
+    canonical_sha256: str | None = None
+    parser: dict[str, Any] = field(default_factory=dict)
+    page_spans: tuple[PageSpan, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -45,6 +71,7 @@ class CandidateEdge:
     evidence_start: int
     evidence_end: int
     allowed_relations: tuple[str, ...]
+    evidence_source_spans: tuple[EvidenceSourceSpan, ...] = ()
 
 
 @dataclass(frozen=True)
