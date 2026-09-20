@@ -7,8 +7,7 @@
   </defs>
   <rect width="1200" height="630" fill="#f7f6f2"/>
   <text x="64" y="76" fill="#69717c" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16" font-weight="700" letter-spacing="2">OPEN SOURCE · EVIDENCE FIRST</text>
-  <text x="64" y="142" fill="#171a20" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="54" font-weight="700" letter-spacing="-2">Documents become a</text>
-  <text x="565" y="142" fill="#0e6675" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="54" font-weight="700" letter-spacing="-2">candidate graph</text>
+  <text x="64" y="142" fill="#171a20" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="54" font-weight="700" letter-spacing="-2">Documents become an <tspan fill="#0e6675">evidence-backed graph</tspan></text>
   <line x1="64" y1="174" x2="1136" y2="174" stroke="#171a20" stroke-width="2"/>
 
   <path d="M256 322H288" fill="none" stroke="#69717c" stroke-width="3" marker-end="url(#arrow)"/>
