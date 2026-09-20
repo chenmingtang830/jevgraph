@@ -181,7 +181,7 @@
   </style>
 </head>
 <body>
-  <!-- THESIS: JevGraph is understood as a bounded evidence pipeline, not another prompt-to-triples demo. OWN-WORLD: Proofpress Boardroom Clarity with white paper, warm evidence fields, black rules, and one teal signal. STORY: see the end-to-end mechanism, inspect DocJev's adjacent document evidence, then judge JevGraph's relation benchmark and tradeoff. FIRST VIEWPORT: one left-to-right architecture diagram makes the local/model boundary, O(n²) to O(nk) reduction, evidence gate, and resulting graph visible at a glance. FORM: one self-contained three-screen field report with scroll, keyboard navigation, and three-page print. FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance. -->
+  <!-- THESIS: JevGraph is understood as a bounded evidence pipeline, not another prompt-to-triples demo. OWN-WORLD: Proofpress Boardroom Clarity with white paper, warm evidence fields, black rules, and one teal signal. STORY: see the end-to-end mechanism, inspect DocJev's adjacent document evidence, then judge JevGraph's relation benchmark and tradeoff. FIRST VIEWPORT: one left-to-right architecture diagram makes the local/model boundary, bounded relation choice, evidence gate, and resulting graph visible at a glance. FORM: one self-contained three-screen field report with scroll, keyboard navigation, and three-page print. FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance. -->
   <nav class="page-nav" aria-label="Report pages">
     <button type="button" data-page="project" aria-label="Go to project overview" aria-current="page">1</button>
     <button type="button" data-page="docjev" aria-label="Go to DocJev benchmark">2</button>
@@ -190,10 +190,10 @@
   <main class="report">
     <section class="page" id="project" aria-labelledby="project-title">
       <header class="topline"><div class="brand"><span class="brand-mark" aria-hidden="true"></span>JevGraph / project brief</div><div class="meta">Open source · v0.5.1 · Evidence first</div></header>
-      <div class="architecture-head"><h1 id="project-title">How documents become a <span>graph</span></h1><p>O(n²) → O(nk)</p></div>
+      <div class="architecture-head"><h1 id="project-title">How documents become a <span>candidate graph</span></h1><p>Evidence stays attached</p></div>
       <svg class="architecture" id="graph-architecture" viewBox="0 0 1400 520" role="img" aria-labelledby="architecture-title architecture-desc">
         <title id="architecture-title">Generic LLM knowledge graph pipeline compared with JevGraph</title>
-        <desc id="architecture-desc">A generic pipeline asks one large language model to extract entities, consider relation pairs, and generate graph triples. JevGraph instead parses locally, blocks candidate pairs, asks Jev only to choose a relation, and applies an evidence gate before producing a candidate graph.</desc>
+        <desc id="architecture-desc">A generic pipeline asks one large language model to extract entities and generate graph triples. JevGraph separates local parsing and candidate selection from one bounded relation choice, then applies an evidence gate before producing a candidate graph.</desc>
         <defs>
           <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#69717c"/></marker>
           <marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0e6675"/></marker>
@@ -201,7 +201,7 @@
 
         <rect class="arch-zone" x="0" y="18" width="1400" height="190"/>
         <text class="arch-zone-label" x="24" y="50">GENERIC LLM PIPELINE</text>
-        <text class="arch-zone-label" x="1180" y="50">O(n²) PAIRS</text>
+        <text class="arch-zone-label" x="1070" y="50">OPEN-ENDED MODEL STEP</text>
         <path class="arch-arrow" d="M 270 125 H 345"/><path class="arch-arrow" d="M 650 125 H 725"/><path class="arch-arrow" d="M 1030 125 H 1105"/>
         <rect class="arch-node" x="24" y="70" width="246" height="110"/><text class="arch-title" x="50" y="116">Documents</text><text class="arch-meta" x="50" y="150">PDF · DOCX · PPTX</text>
         <rect class="arch-node" x="345" y="70" width="305" height="110"/><text class="arch-title" x="371" y="110">LLM extracts entities</text><text class="arch-title" x="371" y="140">+ relation triples</text>
@@ -209,11 +209,11 @@
         <rect class="arch-node" x="1105" y="70" width="271" height="110"/><text class="arch-title" x="1131" y="106">Knowledge graph</text><circle class="graph-node-core" cx="1160" cy="145" r="20"/><circle class="graph-node" cx="1250" cy="126" r="18"/><circle class="graph-node" cx="1278" cy="163" r="18"/><line class="graph-edge" x1="1180" y1="140" x2="1232" y2="129"/><line class="graph-edge" x1="1180" y1="151" x2="1260" y2="161"/>
 
         <rect class="arch-zone-model" x="0" y="228" width="1400" height="242"/>
-        <text class="arch-zone-label" x="24" y="260">JEVGRAPH · REDUCE FIRST</text>
-        <text class="arch-zone-label" x="1232" y="260">O(nk)</text>
+        <text class="arch-zone-label" x="24" y="260">JEVGRAPH · BOUND THE TASK</text>
+        <text class="arch-zone-label" x="1067" y="260">ONE RELATION CHOICE</text>
         <path class="arch-arrow" d="M 240 362 H 280"/><path class="arch-arrow" d="M 500 362 H 540"/><path class="arch-arrow-accent" d="M 760 362 H 800"/><path class="arch-arrow-accent" d="M 1020 362 H 1060"/>
         <rect class="arch-node" x="24" y="292" width="216" height="140"/><text class="arch-title" x="50" y="337">Parse locally</text><text class="arch-meta" x="50" y="374">canonical pages</text><text class="arch-meta" x="50" y="405">12 mentions</text>
-        <rect class="arch-node" x="280" y="292" width="220" height="140"/><text class="arch-title" x="306" y="337">Block pairs</text><text class="arch-meta" x="306" y="374">types + neighbors</text><text class="arch-count" x="306" y="417">15</text><text class="arch-meta" x="374" y="408">candidates</text>
+        <rect class="arch-node" x="280" y="292" width="220" height="140"/><text class="arch-title" x="306" y="337">Select candidates</text><text class="arch-meta" x="306" y="374">types + context</text><text class="arch-count" x="306" y="417">15</text><text class="arch-meta" x="374" y="408">candidates</text>
         <rect class="arch-node-accent" x="540" y="292" width="220" height="140"/><text class="arch-zone-label-light" x="566" y="325">JEV</text><text class="arch-title-light" x="566" y="365">Choose one</text><text class="arch-title-light" x="566" y="395">relation</text>
         <rect class="arch-node-soft" x="800" y="292" width="220" height="140"/><text class="arch-title" x="826" y="326">Evidence gate</text><text class="arch-count" x="826" y="382">4</text><text class="arch-meta" x="886" y="374">proposed</text><text class="arch-meta" x="826" y="404">11 rejected</text><text class="arch-meta" x="826" y="425">0 review</text>
         <rect class="arch-node" x="1060" y="278" width="316" height="168"/>
