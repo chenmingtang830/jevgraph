@@ -15,11 +15,12 @@ from .benchmark import (
     run_lexical_benchmark,
 )
 from .builder import GraphBuilder
+from .e2e_benchmark import run_e2e_benchmark
 from .episodic import episodic_plan, merge_episodic_runs, run_episodic_benchmark
 from .export import export_csv, export_neo4j
 from .extract import load_entities
 from .fewrel import fetch_fewrel, sample_fewrel, sample_fewrel_episodes
-from .models import Document
+from .ingest import load_document
 from .ontology import Ontology
 from .providers import (
     CHAT_MODELS,
@@ -36,10 +37,12 @@ def parser() -> argparse.ArgumentParser:
         prog="jevgraph",
         description="Build evidence-backed candidate knowledge graphs with typed decisions.",
     )
-    root.add_argument("--version", action="version", version="jevgraph 0.4.2")
+    root.add_argument("--version", action="version", version="jevgraph 0.5.0")
     commands = root.add_subparsers(dest="command", required=True)
 
-    build = commands.add_parser("build", help="Build a candidate graph from one text document.")
+    build = commands.add_parser(
+        "build", help="Build a candidate graph from TXT, Markdown, PDF, DOCX, or PPTX."
+    )
     build.add_argument("input", type=Path)
     build.add_argument("--ontology", type=Path, required=True)
     build.add_argument("--entities", type=Path, required=True)
@@ -48,6 +51,8 @@ def parser() -> argparse.ArgumentParser:
     build.add_argument("--probability-threshold", type=float, default=0.85)
     build.add_argument("--confidence-threshold", type=float, default=0.80)
     build.add_argument("--max-neighbors", type=int, default=20)
+    build.add_argument("--cache-dir", type=Path)
+    build.add_argument("--no-cache", action="store_true")
     _live_arguments(build, include_batch_size=True)
 
     fetch = commands.add_parser("fetch-fewrel", help="Fetch pinned FewRel inputs.")
@@ -94,6 +99,22 @@ def parser() -> argparse.ArgumentParser:
     benchmark.add_argument("--case-limit", type=int)
     benchmark.add_argument("--out", type=Path)
     _live_arguments(benchmark, include_batch_size=False)
+
+    e2e = commands.add_parser(
+        "benchmark-e2e",
+        help="Run the digest-pinned configured document-to-graph smoke benchmark.",
+    )
+    e2e.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("benchmarks/company-events-v1.json"),
+    )
+    e2e.add_argument("--provider", choices=["keyword", "jev"], default="keyword")
+    e2e.add_argument("--out", type=Path)
+    e2e.add_argument("--probability-threshold", type=float, default=0.85)
+    e2e.add_argument("--confidence-threshold", type=float, default=0.80)
+    e2e.add_argument("--max-neighbors", type=int, default=20)
+    _live_arguments(e2e, include_batch_size=True)
 
     official = commands.add_parser(
         "benchmark-official",
@@ -169,6 +190,8 @@ def main(argv: list[str] | None = None) -> int:
             return _benchmark(args)
         if args.command == "benchmark-official":
             return _benchmark_official(args)
+        if args.command == "benchmark-e2e":
+            return _benchmark_e2e(args)
         if args.command == "export":
             return _export(args)
         if args.command == "merge-benchmarks":
@@ -192,7 +215,11 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _build(args: argparse.Namespace) -> int:
-    document = Document(id=args.input.stem, text=args.input.read_text(encoding="utf-8"))
+    document = load_document(
+        args.input,
+        cache_dir=args.cache_dir,
+        use_cache=not args.no_cache,
+    )
     ontology = Ontology.load(args.ontology)
     entities = load_entities(args.entities)
     if args.provider == "jev":
@@ -218,6 +245,9 @@ def _build(args: argparse.Namespace) -> int:
             "edges": counts,
             "requests": len(result.receipts),
             "cost_usd": sum(r.cost_usd or 0 for r in result.receipts),
+            "source_sha256": document.source_sha256,
+            "canonical_sha256": document.canonical_sha256,
+            "pages": len(document.page_spans) or None,
         }
     )
     return 0
@@ -288,6 +318,26 @@ def _benchmark(args: argparse.Namespace) -> int:
     if args.out is not None:
         _write_json(args.out, payload)
     _print(payload["summary"])
+    return 0
+
+
+def _benchmark_e2e(args: argparse.Namespace) -> int:
+    if args.provider == "jev":
+        if args.out is None:
+            raise ValueError("--out is required for a live benchmark.")
+        provider = JevProvider(_client(args), batch_size=args.batch_size)
+    else:
+        provider = KeywordProvider()
+    result = run_e2e_benchmark(
+        args.manifest,
+        provider=provider,
+        probability_threshold=args.probability_threshold,
+        confidence_threshold=args.confidence_threshold,
+        max_neighbors=args.max_neighbors,
+    )
+    if args.out is not None:
+        _write_json(args.out, result)
+    _print(result["metrics"])
     return 0
 
 

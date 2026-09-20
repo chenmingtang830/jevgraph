@@ -2,12 +2,13 @@
 
 **Build evidence-backed candidate knowledge graphs with typed relation decisions.**
 
-JevGraph is an open-source experiment in replacing open-ended “prompt → triples” extraction with a
-bounded pipeline:
+JevGraph is an open-source, schema-guided document-to-graph pipeline. It replaces open-ended
+“prompt → triples” extraction with bounded, inspectable stages:
 
 ```text
-documents → entity mentions → local candidate blocking → Jev relation choices
-          → deterministic schema checks → proposed / review / rejected edges
+PDF / DOCX / PPTX / text → local parsing + canonical page map → entity mentions
+                        → local candidate blocking → Jev relation choices
+                        → deterministic schema checks → proposed / review / rejected edges
 ```
 
 It is designed for fixed or slowly changing ontologies where edge precision, source evidence, and
@@ -60,6 +61,8 @@ validate.
 
 ## What is included
 
+- local PDF/DOCX/PPTX ingestion through a pinned optional DocJev + LiteParse adapter
+- source and canonical hashes, parser identity, page spans, and page-local evidence offsets
 - YAML relation ontologies with domain/range constraints
 - exact gazetteer mentions and character-level evidence spans
 - bounded same-sentence candidate generation
@@ -75,12 +78,13 @@ validate.
 
 ## Quickstart
 
-Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
+Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/). Install the `documents` extra for
+PDF, DOCX, and PPTX. DOCX/PPTX rendering also requires LibreOffice.
 
 ```bash
 git clone https://github.com/chenmingtang830/jevgraph.git
 cd jevgraph
-uv sync --all-extras --dev
+uv sync --extra documents --extra dev
 
 uv run jevgraph build examples/company_events.txt \
   --ontology examples/ontology.yml \
@@ -91,6 +95,21 @@ uv run jevgraph build examples/company_events.txt \
 uv run jevgraph export runs/demo.json --format csv --out runs/demo-csv
 uv run jevgraph export runs/demo.json --format neo4j --out runs/demo.cypher
 ```
+
+The same command accepts a PDF, DOCX, or PPTX:
+
+```bash
+uv run jevgraph build path/to/report.pdf \
+  --ontology examples/ontology.yml \
+  --entities examples/entities.yml \
+  --provider keyword \
+  --out runs/report.json
+```
+
+Document parsing is local and makes no model call. The adapter retains DocJev's canonical PDF page
+map and LiteParse metadata, then maps every graph evidence window back to one or more source pages.
+Use `--no-cache` to bypass OCR reuse or `--cache-dir` to choose the local cache location. Cloud OCR
+and DocJev's hosted classification/splitting APIs are not enabled by this command.
 
 The keyword provider is a labeled deterministic demo baseline. It is not presented as a general
 relation extractor.
@@ -126,6 +145,29 @@ Jev list-price equivalent computed from reported input tokens.
 FewRel supplies sentences, entity pairs, and Wikidata-property labels, so this track isolates
 closed-set relation classification. It does not measure entity extraction, candidate recall,
 negative-edge rejection, or end-to-end graph quality.
+
+## Configured E2E smoke benchmark
+
+The repository also includes a deliberately small document-to-candidate-graph regression track.
+Its manifest pins the canonical text, ontology, and entity catalog by SHA-256, then scores candidate
+recall and proposed-edge precision/recall/F1 against four repository-owned gold edges. Cost is
+reported separately as provider receipts, list-price estimates, and derived cost per candidate,
+proposed edge, and correct edge:
+
+```bash
+uv run jevgraph benchmark-e2e \
+  --provider keyword \
+  --out runs/company-events-v1-local.json
+```
+
+The default local run has no provider cost. A Jev run uses the same fixed manifest and requires the
+normal explicit budget and call ceiling. This track begins at canonical text, so it does not
+re-measure DocJev/LiteParse parsing quality. Plain-text inputs have character evidence offsets but
+no page map; `page_mapping_applicable` is therefore false rather than a failed score.
+
+This is a smoke/regression benchmark, not external evidence of general KG quality. FewRel remains
+the public relation-selection benchmark; larger ontology-driven external datasets must retain their
+own licenses and are not bundled into this Apache-2.0 repository by default.
 
 ```bash
 uv run jevgraph fetch-fewrel --data-dir data/fewrel
@@ -266,7 +308,13 @@ this project.
 
 ## Scope and limitations
 
-- Entity discovery is deliberately not solved; the CLI accepts an explicit entity catalog.
+- “End to end” means one configured source document to a schema-checked candidate graph. Entity
+  discovery is deliberately not inferred: the CLI requires an explicit entity catalog and
+  ontology, so outputs remain bounded and reproducible.
+- The current document adapter processes one source file as one logical document. Packet splitting
+  and arbitrary entity discovery remain separate future stages.
+- PDF provenance is page-level plus OCR character offsets. It is not a bounding-box claim about the
+  original rendered page.
 - Candidate generation is same-sentence and English-oriented.
 - FewRel contains positive labeled pairs and is not an end-to-end KG benchmark.
 - Public `val_wiki` episodic results are not official hidden-test leaderboard results. General LLMs

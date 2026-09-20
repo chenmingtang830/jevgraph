@@ -74,8 +74,11 @@ labeled support examples and five query decisions per request.
   10-way, 1-shot or 5-shot episodes come from pinned public `val_wiki`. Relation and query IDs are
   opaque and support/query order is independently shuffled. This is official-shaped public
   validation, not the hidden official leaderboard.
-- **Future end to end:** a separately licensed ontology-based KG construction corpus. Do not infer
-  end-to-end quality from the FewRel track.
+- **Configured E2E smoke track (v0.5):** repository-owned canonical text, a digest-pinned fixed
+  ontology and entity catalog, local mention/candidate generation, provider decisions, and exact
+  proposed-edge scoring. This is a regression fixture, not external evidence of general KG quality.
+- **Future external E2E:** a separately licensed ontology-based KG construction corpus. Do not
+  infer end-to-end quality from either FewRel or the repository-owned smoke track.
 
 ## Reporting rules
 

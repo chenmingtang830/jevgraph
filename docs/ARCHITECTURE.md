@@ -4,7 +4,9 @@ JevGraph treats graph construction as a bounded decision pipeline, not open-ende
 generation.
 
 ```text
-documents
+PDF / DOCX / PPTX / text
+  -> local DocJev/LiteParse ingestion (document formats)
+  -> canonical hashes, ordered page text, and source map
   -> exact entity mentions
   -> typed candidate blocking
   -> minimal evidence windows
@@ -38,6 +40,13 @@ latency, cost, and a request hash. Credentials and authorization headers are nev
 When a provider rounds a large probability distribution, JevGraph accepts totals only within
 `[0.95, 1.05]`, renormalizes them, and records the number of affected answers in the receipt.
 
+For PDF, DOCX, and PPTX, the optional document adapter pins DocJev revision
+`9ed0fe05984ce1906af9272b8b400c8d46520f98` and uses its local LiteParse path only. JevGraph
+stores source and canonical hashes, parser metadata, ordered canonical page spans, and the overlap
+between each evidence window and page-local OCR offsets. Separator characters inserted between
+pages are deliberately not attributed to a source page. This is page-level text provenance, not a
+PDF bounding-box claim.
+
 ## Provider contract
 
 The Jev adapter uses Vercel AI Gateway's evaluation-model protocol. Each candidate is one `Choice`
@@ -60,3 +69,11 @@ creates mentions and deterministic same-sentence/type blocking creates candidate
 FewRel track, the dataset supplies the entity pair directly. The provider selects a relation for
 each pair. It does not perform open-ended entity discovery, pair discovery, ontology induction,
 coreference resolution, graph completion, approval, or truth determination.
+
+## End-to-end boundary
+
+JevGraph's open-source E2E contract is schema-guided: one supported source document plus a declared
+ontology and entity catalog produces a complete candidate-graph artifact. Document parsing and
+candidate construction are local. Selecting the keyword provider keeps the entire run offline;
+selecting Jev adds the existing explicit budget/call gates. Multi-document packet splitting,
+open-ended entity discovery, entity resolution, and human approval are not silently inferred.
