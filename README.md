@@ -33,6 +33,7 @@ validate.
 - hard live-run budget, call, request-size, timeout, and no-retry gates
 - proposed/review/rejected edge states with probabilities and request receipts
 - pinned FewRel 1.0 closed-set benchmark tooling
+- official-compatible FewRel 1.0 episodic validation for Jev, GPT-5.6 Luna, and DeepSeek V4.1 Flash
 - JSON, CSV, and Neo4j Cypher outputs
 - offline tests and GitHub Actions CI
 
@@ -81,6 +82,8 @@ bounds request/response sizes, and stops on unknown cost. Keys and headers are n
 Provider list prices, rate limits, aliases, and behavior can change; check the current
 [TypeSafe model documentation](https://docs.typesafe.ai/models) and
 [Vercel AI Gateway documentation](https://vercel.com/docs/ai-gateway) before relying on old results.
+Published results therefore separate the Gateway's provider-reported charge from an illustrative
+Jev list-price equivalent computed from reported input tokens.
 
 ## FewRel experiment
 
@@ -153,6 +156,68 @@ throughput guarantee. The generic chat comparators are benchmark-only: they retu
 not Jev's probability distribution or confidence. The published DeepSeek run had to continue with
 smaller batches after truncated completions; see the results rather than assuming batch parity.
 
+### Track 2: FewRel episodic validation
+
+This track builds on the published Track 1 closed-set comparison above. It mirrors FewRel's public
+N-way K-shot task shape on `val_wiki`: each
+episode samples 5 or 10 relations, supplies 1 or 5 labeled support examples per relation, and asks
+the model to classify held-out queries for supplied entity pairs. Relation and query IDs are opaque,
+and support/query order is independently shuffled. It supports Jev, GPT-5.6 Luna, and DeepSeek
+V4.1 Flash through the same budgeted Gateway clients used in Track 1.
+
+```bash
+# Default is a deterministic, no-call plan.
+uv run jevgraph benchmark-official \
+  --data-dir data/fewrel \
+  --model gpt-5.6-luna \
+  --ways 5 \
+  --shots 1 \
+  --queries-per-relation 1 \
+  --episodes 100 \
+  --seed 17
+
+# Live execution must be explicit and bounded.
+uv run jevgraph benchmark-official \
+  --data-dir data/fewrel \
+  --model deepseek-v4.1-flash \
+  --ways 5 \
+  --shots 1 \
+  --queries-per-relation 1 \
+  --episodes 100 \
+  --seed 17 \
+  --execute \
+  --approved-budget-usd 1.00 \
+  --call-ceiling 100 \
+  --out runs/fewrel-official-deepseek.json
+```
+
+Use the same episode parameters and seed for every compared model. This is an
+**official-compatible validation track**, not an official hidden-test leaderboard submission:
+FewRel does not publish its test examples, and the official reference evaluates 10,000 hidden-test
+episodes. Queries are evaluated together in one prompt per episode. Their order is shuffled and the
+prompt requires independent judgments, but a general LLM can still inspect other queries; results
+therefore report `query_mode=batched_transductive`. The validation runner also does not test entity
+discovery or candidate-pair generation.
+
+The published 100-episode, 500-query run found 85.6% planned-case accuracy for Jev, 98.0% for
+GPT-5.6 Luna, and 85.0% for DeepSeek V4.1 Flash after counting its 14 failed episodes against the
+frozen denominator. Jev completed every episode with 368 ms p50 request latency; DeepSeek reached
+98.84% on completed queries but only 86% coverage. See [the full results](docs/RESULTS.md) for cost,
+failure, gating, and canary details.
+
+Use `--episode-offset` and `--episode-limit` for a non-overlapping continuation after a failed
+episode. Merge shards while retaining every failed receipt:
+
+```bash
+uv run jevgraph merge-episodic runs/partial.json runs/continuation.json \
+  --expected-episodes 100 \
+  --out runs/merged.json
+```
+
+For a long diagnostic run, `--continue-after-known-failure` records a failed episode and proceeds
+to the next one only when the receipt includes a known cost. It never retries the episode, changes
+models, or continues after an unknown-cost failure.
+
 ## Output contract
 
 Each candidate records:
@@ -168,9 +233,11 @@ this project.
 
 ## Scope and limitations
 
-- Entity discovery is deliberately not solved in v0.2; the CLI accepts an explicit entity catalog.
+- Entity discovery is deliberately not solved in v0.3; the CLI accepts an explicit entity catalog.
 - Candidate generation is same-sentence and English-oriented.
 - FewRel contains positive labeled pairs and is not an end-to-end KG benchmark.
+- Public `val_wiki` episodic results are not official hidden-test leaderboard results. General LLMs
+  may also have encountered FewRel-derived material during pretraining.
 - The current model step only classifies an already supplied candidate pair into a fixed relation
   schema plus `none` / `insufficient_evidence`. It does not discover entities, invent relations,
   resolve coreference, or perform graph completion.

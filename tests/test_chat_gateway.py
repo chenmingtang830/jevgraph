@@ -112,3 +112,47 @@ def test_chat_gateway_rejects_missing_case_without_leaking_text(
 
     assert "prediction_keys_mismatch" in caught.value.receipt.error
     assert "private" not in caught.value.receipt.error
+    assert caught.value.receipt.input_tokens == 20
+    assert caught.value.receipt.output_tokens == 4
+    assert caught.value.receipt.cost_usd == pytest.approx(0.0000108)
+
+
+def test_chat_gateway_uses_opaque_episode_contract(monkeypatch: pytest.MonkeyPatch) -> None:
+    FakeClient.response = FakeResponse(
+        {
+            "choices": [
+                {
+                    "finish_reason": "stop",
+                    "message": {
+                        "content": '{"predictions":{"query_0":"relation_1"}}'
+                    },
+                }
+            ],
+            "usage": {"prompt_tokens": 30, "completion_tokens": 5},
+            "providerMetadata": {"gateway": {"cost": 0.000012}},
+        }
+    )
+    monkeypatch.setattr(chat.httpx, "Client", FakeClient)
+    client = GatewayChatClient(
+        api_key="secret-key-value",
+        model="gpt-5.6-luna",
+        approved_budget_usd=0.05,
+        call_ceiling=1,
+    )
+
+    predictions, receipt = client.classify_episode(
+        episode={
+            "allowed_labels": ["relation_0", "relation_1"],
+            "support": [],
+            "queries": [{"query_id": "query_0", "sentence": "A relates to B."}],
+        },
+        query_ids=("query_0",),
+        allowed_labels=("relation_0", "relation_1"),
+    )
+
+    assert predictions == {"query_0": "relation_1"}
+    assert receipt.question_count == 1
+    assert FakeClient.last_content is not None
+    sent = json.loads(FakeClient.last_content)
+    assert sent["temperature"] == 0
+    assert "Evaluate each query independently" in sent["messages"][0]["content"]
