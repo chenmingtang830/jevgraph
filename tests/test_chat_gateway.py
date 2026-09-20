@@ -77,6 +77,34 @@ def test_chat_gateway_parses_batched_predictions(monkeypatch: pytest.MonkeyPatch
     assert sent["max_tokens"] == 16_384
 
 
+def test_chat_gateway_honors_configured_output_ceiling(monkeypatch: pytest.MonkeyPatch) -> None:
+    FakeClient.response = FakeResponse(
+        {
+            "choices": [
+                {"finish_reason": "stop", "message": {"content": '{"predictions":{"a":"P1"}}'}}
+            ],
+            "usage": {"prompt_tokens": 10, "completion_tokens": 2},
+            "providerMetadata": {"gateway": {"cost": 0.00001}},
+        }
+    )
+    monkeypatch.setattr(chat.httpx, "Client", FakeClient)
+    client = GatewayChatClient(
+        api_key="secret-key-value",
+        model="gpt-5.6-luna",
+        approved_budget_usd=0.05,
+        call_ceiling=1,
+        max_output_tokens=4096,
+    )
+
+    client.classify(
+        criteria={"P1": "creator"},
+        cases={"a": {"sentence": "A made B", "source_entity": "A", "target_entity": "B"}},
+    )
+
+    assert FakeClient.last_content is not None
+    assert json.loads(FakeClient.last_content)["max_tokens"] == 4096
+
+
 def test_chat_gateway_rejects_missing_case_without_leaking_text(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

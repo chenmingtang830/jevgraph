@@ -1,5 +1,52 @@
 # Experiment protocol
 
+## Primary track: v0.4 direct relation selection
+
+This protocol measures only relation identification for an already supplied directed candidate pair:
+
+```text
+sentence + source entity + target entity + 16 explicit relations → one selected relation
+```
+
+The frozen public sample is FewRel 1.0 `train_wiki`, revision
+`278a2315d2138810a379cd8d5718914dc56e2582`: 16 relations × 10 cases, seed 17, 160 planned
+decisions. All three models receive the same case sequence, relation IDs, names, descriptions, and
+ordering. Each provider request holds exactly one case, uses a locally generated opaque
+`case_00000`-style ID, and contains no source ID that encodes the gold relation. Original FewRel
+IDs stay local to scoring and audit.
+
+The answer set is explicitly `relations-only`: exactly the 16 sampled FewRel relations, with no
+`none` or `insufficient_evidence` option. That is appropriate only because this split is
+positive-only; it does not assess negative rejection.
+
+| Setting | Value |
+| --- | --- |
+| Models | `typesafe-ai/jev`, `openai/gpt-5.6-luna`, `deepseek/deepseek-v4.1-flash` |
+| Batch size / requests | 1 / 160 per model |
+| Temperature / execution | 0 / sequential, no concurrency |
+| Retries / fallback | 0 / 0 |
+| Timeout | 55 seconds |
+| Chat completion limit | 4,096 tokens |
+| Score | correct predictions divided by all 160 planned cases |
+
+The no-call preflight estimates ceilings independently from request bytes plus configured output
+limits. For this run: Jev `$0.016012668`, Luna `$0.8701342`, DeepSeek `$0.9124173`; combined
+`$1.798564168`, below the project `$5` absolute cap. These are safeguards, not provider quotes.
+
+No case is retried. A failed receipt is always persisted. With
+`--continue-after-known-failure`, a known-cost failure is skipped and the next case starts. An
+unknown-cost failure stops immediately; after an upper-bound audit, a separate non-overlapping
+shard may start from the next global case offset and be merged while retaining that receipt.
+
+Coverage is completed planned cases divided by 160. Planned-case accuracy counts every uncovered
+case as incorrect; complete-case accuracy is diagnostic only. Provider-reported charges and Jev's
+input-token illustrative list-price equivalent remain separate.
+
+The v0.2 closed-set pilot is **superseded** for capability claims: provider-visible IDs used the
+form `P101:123`, which exposed a gold-bearing relation prefix. The v0.3 5-way few-shot episodic
+public validation remains an **additional stress test**, not the v0.4 primary comparison: it has
+labeled support examples and five query decisions per request.
+
 ## Questions
 
 1. Can Jev classify a known entity pair into a fixed relation schema?
@@ -14,13 +61,13 @@
 
 - **Synthetic end to end:** repository-owned text, gazetteer entities, local candidate generation,
   keyword baseline, and optional Jev decisions.
-- **FewRel closed set:** externally downloaded FewRel 1.0 examples with supplied entity pairs. This
-  isolates relation classification; it does not test entity discovery or negative-edge rejection.
-- **Chat-model comparison:** the identical FewRel sample and relation criteria sent through Vercel
-  AI Gateway to `openai/gpt-5.6-luna` and `deepseek/deepseek-v4.1-flash`. The frozen configuration
-  uses temperature zero and a 16,384 maximum-output-token ceiling. Chat models return only the
-  selected IDs; no self-reported probability is requested or compared with Jev probabilities.
-- **FewRel episodic validation:** Track 2, built on the closed-set baseline. Deterministic 5-way or
+- **FewRel direct closed set (v0.4):** the primary track above: supplied entity pair, one opaque
+  case per request, 16 relations-only choices, temperature zero, and 4,096 chat output tokens.
+- **Chat-model comparison (v0.4):** the exact same FewRel sample, relation criteria, and opaque
+  case ordering through Vercel AI Gateway to `openai/gpt-5.6-luna` and
+  `deepseek/deepseek-v4.1-flash`. Chat models return only selected IDs; no self-reported
+  probability is requested or compared with Jev probabilities.
+- **FewRel episodic validation (v0.3 stress test):** deterministic 5-way or
   10-way, 1-shot or 5-shot episodes come from pinned public `val_wiki`. Relation and query IDs are
   opaque and support/query order is independently shuffled. This is official-shaped public
   validation, not the hidden official leaderboard.
@@ -40,7 +87,9 @@
   failure. The merged artifact retains every failed receipt and reports the mixed batch plan.
 - Provider probabilities are not calibrated correctness guarantees.
 - Preserve source-specific license and citation information; downloaded data is gitignored.
-- Compare models only with identical split, seed, episode count, ways, shots, and query count.
+- Compare direct models only with identical split, seed, 160-case ordering, relation descriptions,
+  choice set, and request configuration. Compare episodic models only with identical episode count,
+  ways, shots, and query count.
 - Episodic requests batch every query in one prompt and must report
   `query_mode=batched_transductive`; query ordering cannot encode relation ordering.
 - Non-overlapping episode continuations retain failed receipts and are merged by case/request ID.

@@ -14,6 +14,40 @@ It is designed for fixed or slowly changing ontologies where edge precision, sou
 reproducibility matter. It does **not** claim that model output is true, approved, or safe for
 consequential reuse.
 
+## v0.4 direct relation-selection benchmark
+
+The current primary benchmark measures exactly one operation: relation identification for an
+already supplied candidate pair. Every model receives the same single case and must return one of
+the same 16 explicit FewRel relations:
+
+```text
+sentence: "Ada designed the Analytical Engine."
+source entity: Ada
+target entity: Analytical Engine
+allowed relations: P50 author, P57 director, … (16 total)
+→ {"predictions":{"case_00042":"P50"}}
+```
+
+The provider only sees an opaque `case_00042` identifier. The original FewRel ID (which can include
+the gold relation) stays local to scoring. On pinned `train_wiki` (16 relations × 10 cases, seed
+17), batch size one, temperature zero, no retries/fallbacks, and 55-second timeout:
+
+| Metric | Jev | GPT-5.6 Luna | DeepSeek V4.1 Flash |
+| --- | ---: | ---: | ---: |
+| Planned-case accuracy | 87.50% | **93.75%** | 93.125% |
+| Coverage | 99.375% | 100% | 99.375% |
+| Successful / attempted requests | 159 / 160 | 160 / 160 | 159 / 160 |
+| p50 / p95 latency | 313 / 431 ms | 1,769 / 4,104 ms | 2,276 / 15,627 ms |
+| Sequential runtime | 51.97 s | 333.86 s | 639.61 s |
+| Input / output tokens | 156,228 / 29,404 | 82,418 / 15,446 | 87,709 / 76,936 |
+| Provider-reported cost | $0 | $0.0350188 | $0.099019152 |
+| Jev illustrative input-price equivalent | $0.006561576 | — | — |
+
+The result is a narrow public-sample measurement, not a general model ranking or an end-to-end KG
+score. It does not measure entity extraction, candidate generation, negative rejection, graph
+truth, calibration, or human approval. The full protocol, failures, and cost audit are in
+[the results](docs/RESULTS.md) and [aggregate evidence](docs/evidence/direct-2026-09-20.json).
+
 ## Why
 
 Testing every pair among `n` entities is `O(n²)`. JevGraph first keeps only nearby pairs that satisfy
@@ -94,45 +128,44 @@ negative-edge rejection, or end-to-end graph quality.
 ```bash
 uv run jevgraph fetch-fewrel --data-dir data/fewrel
 
-# Exact request/case plan; no provider call.
+# v0.4 exact request/case plan; no provider call.
 uv run jevgraph benchmark \
   --data-dir data/fewrel \
   --provider plan \
-  --relations 8 \
-  --examples-per-relation 4 \
-  --seed 7
+  --relations 16 \
+  --examples-per-relation 10 \
+  --seed 17 \
+  --batch-size 1 \
+  --choice-set relations-only \
+  --max-output-tokens 4096
 
-# Free local baseline.
-uv run jevgraph benchmark \
-  --data-dir data/fewrel \
-  --provider lexical \
-  --relations 8 \
-  --examples-per-relation 4 \
-  --seed 7 \
-  --out runs/fewrel-lexical.json
-
-# Live model: explicit budget and artifact path required.
+# Live model: one candidate pair per request; explicit budget and artifact path required.
 uv run jevgraph benchmark \
   --data-dir data/fewrel \
   --provider jev \
-  --batch-size 8 \
-  --relations 8 \
-  --examples-per-relation 4 \
-  --seed 7 \
-  --approved-budget-usd 1.00 \
-  --call-ceiling 4 \
+  --batch-size 1 \
+  --relations 16 \
+  --examples-per-relation 10 \
+  --seed 17 \
+  --choice-set relations-only \
+  --approved-budget-usd 0.10 \
+  --call-ceiling 160 \
+  --continue-after-known-failure \
   --out runs/fewrel-jev.json
 
 # The same closed-set cases through a generic chat-model contract.
 uv run jevgraph benchmark \
   --data-dir data/fewrel \
   --provider gpt-5.6-luna \
-  --batch-size 8 \
-  --relations 8 \
-  --examples-per-relation 4 \
-  --seed 7 \
-  --approved-budget-usd 1.00 \
-  --call-ceiling 4 \
+  --batch-size 1 \
+  --relations 16 \
+  --examples-per-relation 10 \
+  --seed 17 \
+  --choice-set relations-only \
+  --max-output-tokens 4096 \
+  --approved-budget-usd 1.25 \
+  --call-ceiling 160 \
+  --continue-after-known-failure \
   --out runs/fewrel-luna.json
 ```
 
@@ -151,19 +184,17 @@ The downloader pins FewRel commit `278a2315d2138810a379cd8d5718914dc56e2582` and
 digests. Downloaded data and detailed run artifacts are gitignored. See [the experiment
 protocol](docs/EXPERIMENTS.md) and [current results](docs/RESULTS.md).
 
-The default live batch size is eight. It is an observed Jev operating point, not a provider
-throughput guarantee. The generic chat comparators are benchmark-only: they return relation IDs,
-not Jev's probability distribution or confidence. The published DeepSeek run had to continue with
-smaller batches after truncated completions; see the results rather than assuming batch parity.
+`relations-plus-abstentions` remains the default for compatibility, but the v0.4 positive-only
+FewRel protocol explicitly uses `--choice-set relations-only`. The generic chat comparators are
+benchmark-only: they return relation IDs, not Jev's probability distribution or confidence.
 
-### Track 2: FewRel episodic validation
+### Additional stress test: FewRel episodic validation (v0.3)
 
-This track builds on the published Track 1 closed-set comparison above. It mirrors FewRel's public
-N-way K-shot task shape on `val_wiki`: each
+This retained v0.3 stress test mirrors FewRel's public N-way K-shot task shape on `val_wiki`: each
 episode samples 5 or 10 relations, supplies 1 or 5 labeled support examples per relation, and asks
 the model to classify held-out queries for supplied entity pairs. Relation and query IDs are opaque,
 and support/query order is independently shuffled. It supports Jev, GPT-5.6 Luna, and DeepSeek
-V4.1 Flash through the same budgeted Gateway clients used in Track 1.
+V4.1 Flash through the same budgeted Gateway clients used in the direct benchmark.
 
 ```bash
 # Default is a deterministic, no-call plan.
@@ -199,11 +230,9 @@ prompt requires independent judgments, but a general LLM can still inspect other
 therefore report `query_mode=batched_transductive`. The validation runner also does not test entity
 discovery or candidate-pair generation.
 
-The published 100-episode, 500-query run found 85.6% planned-case accuracy for Jev, 98.0% for
-GPT-5.6 Luna, and 85.0% for DeepSeek V4.1 Flash after counting its 14 failed episodes against the
-frozen denominator. Jev completed every episode with 368 ms p50 request latency; DeepSeek reached
-98.84% on completed queries but only 86% coverage. See [the full results](docs/RESULTS.md) for cost,
-failure, gating, and canary details.
+It is an additional stress test, not the v0.4 primary comparison: it has few-shot support examples
+and batches five query decisions per request. See [the full results](docs/RESULTS.md) for its
+historical results, cost, failure, and gating details.
 
 Use `--episode-offset` and `--episode-limit` for a non-overlapping continuation after a failed
 episode. Merge shards while retaining every failed receipt:
@@ -233,14 +262,15 @@ this project.
 
 ## Scope and limitations
 
-- Entity discovery is deliberately not solved in v0.3; the CLI accepts an explicit entity catalog.
+- Entity discovery is deliberately not solved; the CLI accepts an explicit entity catalog.
 - Candidate generation is same-sentence and English-oriented.
 - FewRel contains positive labeled pairs and is not an end-to-end KG benchmark.
 - Public `val_wiki` episodic results are not official hidden-test leaderboard results. General LLMs
   may also have encountered FewRel-derived material during pretraining.
-- The current model step only classifies an already supplied candidate pair into a fixed relation
-  schema plus `none` / `insufficient_evidence`. It does not discover entities, invent relations,
-  resolve coreference, or perform graph completion.
+- The v0.4 benchmark model step classifies an already supplied candidate pair into a supplied
+  relations-only schema. Other application modes can retain abstentions, but this positive-only
+  benchmark does not evaluate them. It does not discover entities, invent relations, resolve
+  coreference, or perform graph completion.
 - Jev works best with compact relevant state, literal instructions, and bounded answers. Long,
   adversarial, multilingual, numeric, temporal, and multi-hop cases need separate evaluation.
 - Provider probabilities and confidence are model outputs, not proof of calibration or correctness.

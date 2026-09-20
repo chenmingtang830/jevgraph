@@ -28,6 +28,7 @@ from .providers import (
     JevProvider,
     KeywordProvider,
 )
+from .providers.chat import MAX_OUTPUT_TOKENS
 
 
 def parser() -> argparse.ArgumentParser:
@@ -35,7 +36,7 @@ def parser() -> argparse.ArgumentParser:
         prog="jevgraph",
         description="Build evidence-backed candidate knowledge graphs with typed decisions.",
     )
-    root.add_argument("--version", action="version", version="jevgraph 0.3.0")
+    root.add_argument("--version", action="version", version="jevgraph 0.4.0")
     commands = root.add_subparsers(dest="command", required=True)
 
     build = commands.add_parser("build", help="Build a candidate graph from one text document.")
@@ -63,6 +64,26 @@ def parser() -> argparse.ArgumentParser:
     benchmark.add_argument("--examples-per-relation", type=int, default=4)
     benchmark.add_argument("--seed", type=int, default=7)
     benchmark.add_argument("--batch-size", type=int, default=8)
+    benchmark.add_argument(
+        "--choice-set",
+        choices=["relations-only", "relations-plus-abstentions"],
+        default="relations-plus-abstentions",
+        help="Candidate answer set; relations-only is appropriate for FewRel's positive-only data.",
+    )
+    benchmark.add_argument(
+        "--max-output-tokens",
+        type=int,
+        default=MAX_OUTPUT_TOKENS,
+        help="Chat-model completion cap; ignored by Jev's evaluation protocol.",
+    )
+    benchmark.add_argument(
+        "--continue-after-known-failure",
+        action="store_true",
+        help=(
+            "Preserve a failed receipt and continue to the next case only when the failed "
+            "request's cost is known; never retries the failed case."
+        ),
+    )
     benchmark.add_argument("--case-offset", type=int, default=0)
     benchmark.add_argument("--case-limit", type=int)
     benchmark.add_argument("--out", type=Path)
@@ -197,7 +218,7 @@ def _build(args: argparse.Namespace) -> int:
 
 
 def _benchmark(args: argparse.Namespace) -> int:
-    sample = sample_fewrel(
+    full_sample = sample_fewrel(
         args.data_dir,
         relation_count=args.relations,
         examples_per_relation=args.examples_per_relation,
@@ -208,20 +229,30 @@ def _benchmark(args: argparse.Namespace) -> int:
     if args.case_limit is not None and args.case_limit < 1:
         raise ValueError("--case-limit must be positive.")
     end = None if args.case_limit is None else args.case_offset + args.case_limit
-    sample = type(sample)(
-        cases=sample.cases[args.case_offset : end],
-        ontology=sample.ontology,
-        relation_ids=sample.relation_ids,
-        seed=sample.seed,
-        source_revision=sample.source_revision,
+    provider_case_ids = {
+        case.id: f"case_{index:05d}" for index, case in enumerate(full_sample.cases)
+    }
+    sample = type(full_sample)(
+        cases=full_sample.cases[args.case_offset : end],
+        ontology=full_sample.ontology,
+        relation_ids=full_sample.relation_ids,
+        seed=full_sample.seed,
+        source_revision=full_sample.source_revision,
     )
     if not sample.cases:
         raise ValueError("The requested FewRel case slice is empty.")
     if args.provider == "plan":
-        _print(benchmark_plan(sample, batch_size=args.batch_size))
+        _print(
+            benchmark_plan(
+                sample,
+                batch_size=args.batch_size,
+                choice_set=args.choice_set,
+                chat_max_output_tokens=args.max_output_tokens,
+            )
+        )
         return 0
     if args.provider == "lexical":
-        result = run_lexical_benchmark(sample)
+        result = run_lexical_benchmark(sample, choice_set=args.choice_set)
     elif args.provider == "jev":
         if args.out is None:
             raise ValueError("--out is required for a live benchmark.")
@@ -230,6 +261,9 @@ def _benchmark(args: argparse.Namespace) -> int:
             client=_client(args),
             batch_size=args.batch_size,
             progress_path=args.out,
+            choice_set=args.choice_set,
+            provider_case_ids=provider_case_ids,
+            continue_after_known_failure=args.continue_after_known_failure,
         )
     else:
         if args.out is None:
@@ -239,6 +273,9 @@ def _benchmark(args: argparse.Namespace) -> int:
             client=_chat_client(args, args.provider),
             batch_size=args.batch_size,
             progress_path=args.out,
+            choice_set=args.choice_set,
+            provider_case_ids=provider_case_ids,
+            continue_after_known_failure=args.continue_after_known_failure,
         )
     payload = result.to_dict()
     if args.out is not None:
@@ -346,6 +383,7 @@ def _chat_client(args: argparse.Namespace, model: str) -> GatewayChatClient:
         model=model,
         approved_budget_usd=args.approved_budget_usd,
         call_ceiling=args.call_ceiling,
+        max_output_tokens=args.max_output_tokens,
     )
 
 
