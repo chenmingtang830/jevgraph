@@ -11,6 +11,7 @@ from typing import Any
 
 from .fewrel import FewRelCase, FewRelSample
 from .models import RequestReceipt
+from .providers.chat import GatewayChatClient
 from .providers.gateway import MAX_REQUEST_BYTES, GatewayJevClient
 
 
@@ -205,6 +206,62 @@ def run_jev_benchmark(
                     predicted_relation=answer.selected,
                     selected_probability=answer.probabilities[answer.selected],
                     confidence=answer.confidence,
+                    request_id=receipt.request_id,
+                    status="success",
+                )
+            )
+        if progress_path is not None:
+            _write_progress(progress_path, result, batch_index, "request_complete")
+    return result
+
+
+def run_chat_benchmark(
+    sample: FewRelSample,
+    *,
+    client: GatewayChatClient,
+    batch_size: int,
+    progress_path: str | Path | None = None,
+) -> BenchmarkResult:
+    result = BenchmarkResult(
+        schema_version=1,
+        created_at=datetime.now(UTC).isoformat(),
+        provider=client.provider,
+        model=client.model,
+        source_revision=sample.source_revision,
+        seed=sample.seed,
+        relation_ids=list(sample.relation_ids),
+        planned_cases=len(sample.cases),
+    )
+    criteria = sample.ontology.criteria(sample.relation_ids)
+    for batch_index, batch in enumerate(_pack_batches(sample, batch_size=batch_size)):
+        cases = {
+            case.id: {
+                "sentence": case.text,
+                "source_entity": case.source,
+                "target_entity": case.target,
+            }
+            for case in batch
+        }
+        if progress_path is not None:
+            _write_progress(progress_path, result, batch_index, "request_starting")
+        try:
+            answers, receipt = client.classify(criteria=criteria, cases=cases)
+        except Exception as exc:
+            receipt = getattr(exc, "receipt", None)
+            if isinstance(receipt, RequestReceipt):
+                result.receipts.append(receipt)
+            if progress_path is not None:
+                _write_progress(progress_path, result, batch_index, "stopped")
+            raise
+        result.receipts.append(receipt)
+        for case in batch:
+            result.predictions.append(
+                BenchmarkPrediction(
+                    case_id=case.id,
+                    gold_relation=case.gold_relation,
+                    predicted_relation=answers[case.id],
+                    selected_probability=None,
+                    confidence=None,
                     request_id=receipt.request_id,
                     status="success",
                 )

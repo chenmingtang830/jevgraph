@@ -1,13 +1,14 @@
 # Results
 
-Status: v0.1 hackathon pilot complete on 2026-09-20.
+Status: v0.2 three-model hackathon pilot complete on 2026-09-20.
 
 This page will contain aggregate results only. Detailed FewRel examples and run payloads remain in
 gitignored `runs/` because they contain externally sourced text.
 
 No result should be interpreted as a general model ranking, end-to-end knowledge-graph score, or
-proof that a proposed edge is true. The aggregate evidence record is
-[`docs/evidence/pilot-2026-09-20.json`](evidence/pilot-2026-09-20.json).
+proof that a proposed edge is true. The aggregate evidence records are
+[`docs/evidence/pilot-2026-09-20.json`](evidence/pilot-2026-09-20.json) and
+[`docs/evidence/comparison-2026-09-20.json`](evidence/comparison-2026-09-20.json).
 
 ## FewRel closed-set pilot
 
@@ -38,6 +39,49 @@ the requested alias `typesafe-ai/jev` and leaves `resolved_model` null.
 
 This positive-only track does not measure false-positive edge rejection. The 100% gated subset is an
 observed risk/coverage point on this sample, not a calibrated production guarantee.
+
+## GPT-5.6 Luna and DeepSeek V4.1 Flash comparison
+
+All three models saw the same frozen 160 positive FewRel cases, supplied directed entity pairs, 16
+relation descriptions, and the two abstention choices. The final chat-model configuration used
+temperature zero and a 16,384 maximum-output-token ceiling. Jev used its native typed Choice
+protocol; the chat models returned only a strict JSON map of relation IDs.
+
+| Metric | Jev | GPT-5.6 Luna | DeepSeek V4.1 Flash |
+| --- | ---: | ---: | ---: |
+| Raw accuracy | **85.0% (136/160)** | 80.0% (128/160) | 83.75% (134/160) |
+| Final case coverage | 100% | 100% | 100% after continuation |
+| Successful / attempted requests | 20 / 21 | 20 / 20 | 51 / 53 |
+| Batch plan | 8 | 8 | 8, then 4, then 2 |
+| Request latency p50 / p95 | **444 / 625 ms** | 5,154 / 7,413 ms | 4,400 / 22,335 ms |
+| Sequential request time, including failures | **9.46 s** | 106.73 s | 407.66 s |
+| Successful input / output tokens | 128,988 / 32,456 | 18,548 / 8,918 | 36,137 / 79,506 |
+| Known Gateway cost | $0 reported | $0.0144112 | $0.10255982 |
+| Failed requests with unknown cost | 1 | 0 | 2 |
+| Output contract | choice + probabilities + confidence | choice only | choice only |
+
+DeepSeek reached almost the same raw accuracy as Jev, but two requests exhausted the output ceiling:
+one at batch eight and one at batch four. The recorded run continued from non-overlapping offsets at
+smaller batch sizes and retained both failed receipts. Batch two completed the remaining 76 cases.
+This is useful product evidence: the model can classify the pairs, but it did not sustain the same
+batch contract. Its latency percentiles therefore describe the mixed operational path, not a fixed
+batch-eight run.
+
+Luna completed every final request at batch eight. Two earlier exploratory runs with an unfixed
+sampling default scored 80.625% and 73.75%; the final temperature-zero run scored 80.0%. Those runs
+are not cherry-picked into the main table, but the variance motivated freezing the sampling setting.
+
+The error pattern was mostly conservative abstention. Because this FewRel sample contains only
+positive relations, every `none` answer is wrong: Jev selected `none` in 11 of 24 errors, Luna in all
+32 errors, and DeepSeek in 25 of 26 errors. A separate negative-pair dataset is required before
+calling that behavior good or bad for graph precision.
+
+Jev's provider-reported cost was zero for successful requests; at the checked input list price its
+successful input had a $0.00542 illustrative equivalent. That is not directly comparable to billed
+chat-model cost. Across all exploratory and final calls in the hackathon, known billed cost was
+$0.150184. Five failed requests across the Jev and chat experiments have unknown billing status; a
+deliberately conservative request-size/output-ceiling calculation keeps the total below $0.315,
+well inside the approved $5 cap.
 
 ## Synthetic end-to-end run
 

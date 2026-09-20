@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-20",
+  "provider": "vercel-ai-gateway",
+  "scope": "closed-set relation selection for supplied directed entity pairs",
+  "fewrel": {
+    "source_revision": "278a2315d2138810a379cd8d5718914dc56e2582",
+    "seed": 17,
+    "relations": 16,
+    "cases": 160,
+    "positive_only": true
+  },
+  "models": {
+    "typesafe-ai/jev": {
+      "correct": 136,
+      "accuracy": 0.85,
+      "successful_requests": 20,
+      "attempted_requests": 21,
+      "batch_plan": [8],
+      "request_latency_p50_ms": 444,
+      "request_latency_p95_ms": 625,
+      "sequential_request_time_ms": 9461,
+      "input_tokens_successful": 128988,
+      "output_tokens_successful": 32456,
+      "known_cost_usd": 0.0,
+      "unknown_cost_requests": 1,
+      "failure_modes": ["HTTP 503"],
+      "none_errors": 11,
+      "total_errors": 24,
+      "output_contract": "choice_probabilities_confidence"
+    },
+    "openai/gpt-5.6-luna": {
+      "correct": 128,
+      "accuracy": 0.8,
+      "successful_requests": 20,
+      "attempted_requests": 20,
+      "batch_plan": [8],
+      "temperature": 0,
+      "max_output_tokens": 16384,
+      "request_latency_p50_ms": 5154,
+      "request_latency_p95_ms": 7413,
+      "sequential_request_time_ms": 106730,
+      "input_tokens_successful": 18548,
+      "output_tokens_successful": 8918,
+      "known_cost_usd": 0.0144112,
+      "unknown_cost_requests": 0,
+      "failure_modes": [],
+      "none_errors": 32,
+      "total_errors": 32,
+      "output_contract": "choice_only"
+    },
+    "deepseek/deepseek-v4.1-flash": {
+      "correct": 134,
+      "accuracy": 0.8375,
+      "successful_requests": 51,
+      "attempted_requests": 53,
+      "batch_plan": [8, 4, 2],
+      "batch_cases": [64, 20, 76],
+      "temperature": 0,
+      "max_output_tokens": 16384,
+      "request_latency_p50_ms": 4400,
+      "request_latency_p95_ms": 22335,
+      "sequential_request_time_ms": 407655,
+      "input_tokens_successful": 36137,
+      "output_tokens_successful": 79506,
+      "known_cost_usd": 0.10255982,
+      "unknown_cost_requests": 2,
+      "failure_modes": [
+        "incomplete completion at batch size 8",
+        "incomplete completion at batch size 4"
+      ],
+      "none_errors": 25,
+      "total_errors": 26,
+      "output_contract": "choice_only"
+    }
+  },
+  "budget_audit": {
+    "approved_cap_usd": 5.0,
+    "known_billed_chat_experiment_cost_usd": 0.15018398,
+    "unknown_cost_requests_all_experiments": 5,
+    "conservative_total_upper_bound_usd": 0.31488158,
+    "upper_bound_method": "Known cost plus one-byte-per-input-token request-size ceilings and configured maximum output tokens at checked catalog prices."
+  },
+  "limitations": [
+    "FewRel supplied the entity pairs; this does not evaluate entity discovery or pair blocking recall.",
+    "FewRel cases are positive-only, so this does not measure negative-edge precision.",
+    "DeepSeek latency and request counts describe an adaptive mixed-batch continuation.",
+    "Chat models returned choices only and cannot be compared on Jev's probability gate.",
+    "A provider result is a candidate relation decision, not truth or human approval."
+  ]
+}

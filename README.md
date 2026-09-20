@@ -29,6 +29,7 @@ validate.
 - bounded same-sentence candidate generation
 - a transparent local keyword baseline
 - a Vercel AI Gateway adapter for `typesafe-ai/jev`
+- benchmark-only Vercel Gateway comparators for GPT-5.6 Luna and DeepSeek V4.1 Flash
 - hard live-run budget, call, request-size, timeout, and no-retry gates
 - proposed/review/rejected edge states with probabilities and request receipts
 - pinned FewRel 1.0 closed-set benchmark tooling
@@ -107,7 +108,7 @@ uv run jevgraph benchmark \
   --seed 7 \
   --out runs/fewrel-lexical.json
 
-# Live Jev: explicit budget and artifact path required.
+# Live model: explicit budget and artifact path required.
 uv run jevgraph benchmark \
   --data-dir data/fewrel \
   --provider jev \
@@ -118,6 +119,18 @@ uv run jevgraph benchmark \
   --approved-budget-usd 1.00 \
   --call-ceiling 4 \
   --out runs/fewrel-jev.json
+
+# The same closed-set cases through a generic chat-model contract.
+uv run jevgraph benchmark \
+  --data-dir data/fewrel \
+  --provider gpt-5.6-luna \
+  --batch-size 8 \
+  --relations 8 \
+  --examples-per-relation 4 \
+  --seed 7 \
+  --approved-budget-usd 1.00 \
+  --call-ceiling 4 \
+  --out runs/fewrel-luna.json
 ```
 
 Use `--case-offset` and `--case-limit` to create a separately recorded diagnostic slice without
@@ -135,9 +148,10 @@ The downloader pins FewRel commit `278a2315d2138810a379cd8d5718914dc56e2582` and
 digests. Downloaded data and detailed run artifacts are gitignored. See [the experiment
 protocol](docs/EXPERIMENTS.md) and [current results](docs/RESULTS.md).
 
-The default live batch size is eight. A 32-question pilot request returned HTTP 503 through the
-Gateway, while the frozen eight-question batches completed reliably enough for the published pilot.
-This is an observed operational default, not a provider throughput guarantee.
+The default live batch size is eight. It is an observed Jev operating point, not a provider
+throughput guarantee. The generic chat comparators are benchmark-only: they return relation IDs,
+not Jev's probability distribution or confidence. The published DeepSeek run had to continue with
+smaller batches after truncated completions; see the results rather than assuming batch parity.
 
 ## Output contract
 
@@ -154,9 +168,12 @@ this project.
 
 ## Scope and limitations
 
-- Entity discovery is deliberately not solved in v0.1; the CLI accepts an explicit entity catalog.
+- Entity discovery is deliberately not solved in v0.2; the CLI accepts an explicit entity catalog.
 - Candidate generation is same-sentence and English-oriented.
 - FewRel contains positive labeled pairs and is not an end-to-end KG benchmark.
+- The current model step only classifies an already supplied candidate pair into a fixed relation
+  schema plus `none` / `insufficient_evidence`. It does not discover entities, invent relations,
+  resolve coreference, or perform graph completion.
 - Jev works best with compact relevant state, literal instructions, and bounded answers. Long,
   adversarial, multilingual, numeric, temporal, and multi-hop cases need separate evaluation.
 - Provider probabilities and confidence are model outputs, not proof of calibration or correctness.

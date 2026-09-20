@@ -10,6 +10,7 @@ from typing import Any
 from .benchmark import (
     benchmark_plan,
     merge_benchmark_runs,
+    run_chat_benchmark,
     run_jev_benchmark,
     run_lexical_benchmark,
 )
@@ -19,7 +20,7 @@ from .extract import load_entities
 from .fewrel import fetch_fewrel, sample_fewrel
 from .models import Document
 from .ontology import Ontology
-from .providers import GatewayJevClient, JevProvider, KeywordProvider
+from .providers import GatewayChatClient, GatewayJevClient, JevProvider, KeywordProvider
 
 
 def parser() -> argparse.ArgumentParser:
@@ -27,7 +28,7 @@ def parser() -> argparse.ArgumentParser:
         prog="jevgraph",
         description="Build evidence-backed candidate knowledge graphs with typed decisions.",
     )
-    root.add_argument("--version", action="version", version="jevgraph 0.1.1")
+    root.add_argument("--version", action="version", version="jevgraph 0.2.0")
     commands = root.add_subparsers(dest="command", required=True)
 
     build = commands.add_parser("build", help="Build a candidate graph from one text document.")
@@ -46,7 +47,11 @@ def parser() -> argparse.ArgumentParser:
 
     benchmark = commands.add_parser("benchmark", help="Plan or run the FewRel closed-set track.")
     benchmark.add_argument("--data-dir", type=Path, default=Path("data/fewrel"))
-    benchmark.add_argument("--provider", choices=["plan", "lexical", "jev"], default="plan")
+    benchmark.add_argument(
+        "--provider",
+        choices=["plan", "lexical", "jev", "gpt-5.6-luna", "deepseek-v4.1-flash"],
+        default="plan",
+    )
     benchmark.add_argument("--relations", type=int, default=8)
     benchmark.add_argument("--examples-per-relation", type=int, default=4)
     benchmark.add_argument("--seed", type=int, default=7)
@@ -160,12 +165,21 @@ def _benchmark(args: argparse.Namespace) -> int:
         return 0
     if args.provider == "lexical":
         result = run_lexical_benchmark(sample)
-    else:
+    elif args.provider == "jev":
         if args.out is None:
             raise ValueError("--out is required for a live benchmark.")
         result = run_jev_benchmark(
             sample,
             client=_client(args),
+            batch_size=args.batch_size,
+            progress_path=args.out,
+        )
+    else:
+        if args.out is None:
+            raise ValueError("--out is required for a live benchmark.")
+        result = run_chat_benchmark(
+            sample,
+            client=_chat_client(args, args.provider),
             batch_size=args.batch_size,
             progress_path=args.out,
         )
@@ -195,6 +209,20 @@ def _client(args: argparse.Namespace) -> GatewayJevClient:
         raise ValueError("AI_GATEWAY_API_KEY is not set.")
     return GatewayJevClient(
         api_key=api_key,
+        approved_budget_usd=args.approved_budget_usd,
+        call_ceiling=args.call_ceiling,
+    )
+
+
+def _chat_client(args: argparse.Namespace, model: str) -> GatewayChatClient:
+    if args.approved_budget_usd is None:
+        raise ValueError("Live chat-model runs require --approved-budget-usd.")
+    api_key = os.environ.get("AI_GATEWAY_API_KEY")
+    if not api_key:
+        raise ValueError("AI_GATEWAY_API_KEY is not set.")
+    return GatewayChatClient(
+        api_key=api_key,
+        model=model,
         approved_budget_usd=args.approved_budget_usd,
         call_ceiling=args.call_ceiling,
     )
