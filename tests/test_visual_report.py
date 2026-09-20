@@ -37,8 +37,8 @@ def test_visual_report_is_self_contained_and_uses_cents_per_100(tmp_path: Path) 
     assert "company-events-v1" in rendered
     assert 'id="graph-architecture"' in rendered
     assert "JEV" in rendered
-    assert "Northstar" in rendered
-    assert "Founder" in rendered
+    assert "Candidate graph" in rendered
+    assert "4 evidence-" in rendered
     assert "O(nk)" in rendered
     assert "GENERIC LLM PIPELINE" in rendered
     assert "LLM extracts entities" in rendered
