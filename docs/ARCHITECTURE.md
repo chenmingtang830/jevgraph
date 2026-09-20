@@ -44,3 +44,6 @@ The Jev adapter uses Vercel AI Gateway's evaluation-model protocol. Each candida
 question over ontology relations allowed by the source/target types, plus `none` and
 `insufficient_evidence`. Requests are size-bounded, sequential, and never retried. A run requires
 both a configured key and an explicit dollar budget.
+
+The default live batch size is eight. It is based on the v0.1 pilot's observed Gateway behavior and
+does not claim a provider-side concurrency guarantee.

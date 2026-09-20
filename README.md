@@ -69,6 +69,7 @@ uv run jevgraph build examples/company_events.txt \
   --ontology examples/ontology.yml \
   --entities examples/entities.yml \
   --provider jev \
+  --batch-size 8 \
   --approved-budget-usd 0.05 \
   --call-ceiling 2 \
   --out runs/demo-jev.json
@@ -110,6 +111,7 @@ uv run jevgraph benchmark \
 uv run jevgraph benchmark \
   --data-dir data/fewrel \
   --provider jev \
+  --batch-size 8 \
   --relations 8 \
   --examples-per-relation 4 \
   --seed 7 \
@@ -132,6 +134,10 @@ uv run jevgraph merge-benchmarks runs/partial.json runs/continuation.json \
 The downloader pins FewRel commit `278a2315d2138810a379cd8d5718914dc56e2582` and verifies SHA-256
 digests. Downloaded data and detailed run artifacts are gitignored. See [the experiment
 protocol](docs/EXPERIMENTS.md) and [current results](docs/RESULTS.md).
+
+The default live batch size is eight. A 32-question pilot request returned HTTP 503 through the
+Gateway, while the frozen eight-question batches completed reliably enough for the published pilot.
+This is an observed operational default, not a provider throughput guarantee.
 
 ## Output contract
 

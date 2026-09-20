@@ -27,7 +27,7 @@ def parser() -> argparse.ArgumentParser:
         prog="jevgraph",
         description="Build evidence-backed candidate knowledge graphs with typed decisions.",
     )
-    root.add_argument("--version", action="version", version="jevgraph 0.1.0")
+    root.add_argument("--version", action="version", version="jevgraph 0.1.1")
     commands = root.add_subparsers(dest="command", required=True)
 
     build = commands.add_parser("build", help="Build a candidate graph from one text document.")
@@ -50,7 +50,7 @@ def parser() -> argparse.ArgumentParser:
     benchmark.add_argument("--relations", type=int, default=8)
     benchmark.add_argument("--examples-per-relation", type=int, default=4)
     benchmark.add_argument("--seed", type=int, default=7)
-    benchmark.add_argument("--batch-size", type=int, default=32)
+    benchmark.add_argument("--batch-size", type=int, default=8)
     benchmark.add_argument("--case-offset", type=int, default=0)
     benchmark.add_argument("--case-limit", type=int)
     benchmark.add_argument("--out", type=Path)
@@ -74,7 +74,7 @@ def _live_arguments(command: argparse.ArgumentParser, *, include_batch_size: boo
     command.add_argument("--approved-budget-usd", type=float)
     command.add_argument("--call-ceiling", type=int, default=100)
     if include_batch_size:
-        command.add_argument("--batch-size", type=int, default=32)
+        command.add_argument("--batch-size", type=int, default=8)
 
 
 def main(argv: list[str] | None = None) -> int:

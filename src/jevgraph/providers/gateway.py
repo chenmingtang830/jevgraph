@@ -260,7 +260,7 @@ class JevProvider:
     name = GatewayJevClient.provider
     model = GatewayJevClient.model
 
-    def __init__(self, client: GatewayJevClient, *, batch_size: int = 32) -> None:
+    def __init__(self, client: GatewayJevClient, *, batch_size: int = 8) -> None:
         if batch_size < 1 or batch_size > 128:
             raise ValueError("batch_size must be between 1 and 128.")
         self.client = client
