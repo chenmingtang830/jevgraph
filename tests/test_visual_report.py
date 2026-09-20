@@ -40,7 +40,7 @@ def test_visual_report_is_self_contained_and_uses_cents_per_100(tmp_path: Path) 
     assert "Northstar" in rendered
     assert "Founder" in rendered
     assert "O(nk)" in rendered
-    assert "GENERIC LLM KNOWLEDGE GRAPH PIPELINE" in rendered
+    assert "GENERIC LLM PIPELINE" in rendered
     assert "LLM extracts entities" in rendered
     assert "6.55× lower" in rendered
     assert "93.125%" in rendered

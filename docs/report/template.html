@@ -46,20 +46,20 @@
     .page-footer a { color: var(--accent); }
 
     .architecture-head { display: flex; align-items: end; justify-content: space-between; gap: 30px; padding: 20px 0 12px; }
-    .architecture-head h1 { max-width: 1040px; margin: 0; font-size: clamp(2.7rem, 4.4vw, 4.4rem); font-weight: 600; line-height: .94; letter-spacing: -.04em; }
+    .architecture-head h1 { max-width: 1100px; margin: 0; font-size: clamp(2.6rem, 4vw, 4rem); font-weight: 600; line-height: .94; letter-spacing: -.04em; }
     .architecture-head h1 span { color: var(--accent); }
     .architecture-head p { flex: 0 0 auto; margin: 0 0 4px; color: var(--accent); font: 600 14px/1.2 var(--font-proof); }
     .architecture { display: block; width: 100%; height: min(520px, calc(100svh - 185px)); min-height: 445px; border-block: 1px solid var(--ink); }
     .arch-zone { fill: var(--warm); }
     .arch-zone-model { fill: var(--accent-soft); }
-    .arch-zone-label { fill: var(--ink-3); font: 600 13px var(--font-proof); letter-spacing: .09em; }
+    .arch-zone-label { fill: var(--ink-3); font: 600 20px var(--font-proof); letter-spacing: .06em; }
     .arch-node { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }
     .arch-node-accent { fill: var(--accent); stroke: var(--accent); stroke-width: 1.5; }
     .arch-node-soft { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
-    .arch-title { fill: var(--ink); font: 600 23px var(--font-ui); letter-spacing: -.02em; }
-    .arch-title-light { fill: var(--paper); font: 600 23px var(--font-ui); letter-spacing: -.02em; }
-    .arch-meta { fill: var(--ink-2); font: 500 14px var(--font-proof); }
-    .arch-meta-light { fill: var(--paper); font: 500 14px var(--font-proof); }
+    .arch-title { fill: var(--ink); font: 600 27px var(--font-ui); letter-spacing: -.02em; }
+    .arch-title-light { fill: var(--paper); font: 600 27px var(--font-ui); letter-spacing: -.02em; }
+    .arch-meta { fill: var(--ink-2); font: 500 18px var(--font-proof); }
+    .arch-meta-light { fill: var(--paper); font: 500 18px var(--font-proof); }
     .arch-count { fill: var(--accent); font: 600 44px var(--font-proof); letter-spacing: -.04em; }
     .arch-count-light { fill: var(--paper); font: 600 44px var(--font-proof); letter-spacing: -.04em; }
     .arch-arrow { fill: none; stroke: var(--ink-3); stroke-width: 2; marker-end: url(#arrow); }
@@ -68,10 +68,10 @@
     .graph-edge { stroke: var(--accent); stroke-width: 2; }
     .graph-node { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }
     .graph-node-core { fill: var(--accent); stroke: var(--accent); stroke-width: 1.5; }
-    .graph-name { fill: var(--ink); font: 600 15px var(--font-ui); }
-    .graph-name-core { fill: var(--paper); font: 600 16px var(--font-ui); }
-    .graph-edge-label { fill: var(--accent); font: 600 11px var(--font-proof); }
-    .arch-caption { fill: var(--ink-2); font: 500 15px var(--font-ui); }
+    .graph-name { fill: var(--ink); font: 600 17px var(--font-ui); }
+    .graph-name-core { fill: var(--paper); font: 600 17px var(--font-ui); }
+    .graph-edge-label { fill: var(--accent); font: 600 15px var(--font-proof); }
+    .arch-caption { fill: var(--ink-2); font: 600 17px var(--font-ui); }
 
     .docjev-intro { margin-bottom: 16px; }
     .source-note { padding: 11px 15px; color: var(--ink-2); background: var(--warm); border-top: 1px solid var(--ink); font-size: 13px; line-height: 1.45; }
@@ -189,7 +189,7 @@
   <main class="report">
     <section class="page" id="project" aria-labelledby="project-title">
       <header class="topline"><div class="brand"><span class="brand-mark" aria-hidden="true"></span>JevGraph / project brief</div><div class="meta">Open source · v0.5.1 · Evidence first</div></header>
-      <div class="architecture-head"><h1 id="project-title">Documents → <span>evidence-backed candidate graph</span></h1><p>O(n²) → O(nk)</p></div>
+      <div class="architecture-head"><h1 id="project-title">How documents become a <span>graph</span></h1><p>O(n²) → O(nk)</p></div>
       <svg class="architecture" id="graph-architecture" viewBox="0 0 1400 520" role="img" aria-labelledby="architecture-title architecture-desc">
         <title id="architecture-title">Generic LLM knowledge graph pipeline compared with JevGraph</title>
         <desc id="architecture-desc">A generic pipeline asks one large language model to extract entities, consider relation pairs, and generate graph triples. JevGraph instead parses locally, blocks candidate pairs, asks Jev only to choose a relation, and applies an evidence gate before producing a candidate graph.</desc>
@@ -199,22 +199,22 @@
         </defs>
 
         <rect class="arch-zone" x="0" y="18" width="1400" height="190"/>
-        <text class="arch-zone-label" x="24" y="48">GENERIC LLM KNOWLEDGE GRAPH PIPELINE</text>
-        <text class="arch-meta" x="1124" y="48">ALL POSSIBLE PAIRS · O(n²)</text>
+        <text class="arch-zone-label" x="24" y="50">GENERIC LLM PIPELINE</text>
+        <text class="arch-zone-label" x="1180" y="50">O(n²) PAIRS</text>
         <path class="arch-arrow" d="M 270 125 H 345"/><path class="arch-arrow" d="M 650 125 H 725"/><path class="arch-arrow" d="M 1030 125 H 1105"/>
-        <rect class="arch-node" x="24" y="70" width="246" height="110"/><text class="arch-title" x="50" y="116">Documents</text><text class="arch-meta" x="50" y="148">PDF · DOCX · PPTX · text</text>
+        <rect class="arch-node" x="24" y="70" width="246" height="110"/><text class="arch-title" x="50" y="116">Documents</text><text class="arch-meta" x="50" y="150">PDF · DOCX · PPTX</text>
         <rect class="arch-node" x="345" y="70" width="305" height="110"/><text class="arch-title" x="371" y="110">LLM extracts entities</text><text class="arch-title" x="371" y="140">+ relation triples</text>
-        <rect class="arch-node" x="725" y="70" width="305" height="110"/><text class="arch-title" x="751" y="110">Validate + deduplicate</text><text class="arch-meta" x="751" y="148">schema · confidence · conflicts</text>
-        <rect class="arch-node" x="1105" y="70" width="271" height="110"/><circle class="graph-node-core" cx="1160" cy="125" r="25"/><circle class="graph-node" cx="1260" cy="98" r="22"/><circle class="graph-node" cx="1290" cy="153" r="22"/><line class="graph-edge" x1="1185" y1="118" x2="1238" y2="103"/><line class="graph-edge" x1="1183" y1="136" x2="1268" y2="150"/><text class="arch-title" x="1322" y="132" text-anchor="middle">Graph</text>
+        <rect class="arch-node" x="725" y="70" width="305" height="110"/><text class="arch-title" x="751" y="116">Validate + deduplicate</text><text class="arch-meta" x="751" y="150">schema · confidence</text>
+        <rect class="arch-node" x="1105" y="70" width="271" height="110"/><text class="arch-title" x="1131" y="106">Knowledge graph</text><circle class="graph-node-core" cx="1160" cy="145" r="20"/><circle class="graph-node" cx="1250" cy="126" r="18"/><circle class="graph-node" cx="1278" cy="163" r="18"/><line class="graph-edge" x1="1180" y1="140" x2="1232" y2="129"/><line class="graph-edge" x1="1180" y1="151" x2="1260" y2="161"/>
 
         <rect class="arch-zone-model" x="0" y="228" width="1400" height="242"/>
-        <text class="arch-zone-label" x="24" y="258">JEVGRAPH · REDUCE FIRST, THEN ASK ONE BOUNDED QUESTION</text>
-        <text class="arch-meta" x="1160" y="258">O(n²) → O(nk)</text>
+        <text class="arch-zone-label" x="24" y="260">JEVGRAPH · REDUCE FIRST</text>
+        <text class="arch-zone-label" x="1232" y="260">O(nk)</text>
         <path class="arch-arrow" d="M 240 362 H 280"/><path class="arch-arrow" d="M 500 362 H 540"/><path class="arch-arrow-accent" d="M 760 362 H 800"/><path class="arch-arrow-accent" d="M 1020 362 H 1060"/>
-        <rect class="arch-node" x="24" y="292" width="216" height="140"/><text class="arch-title" x="50" y="334">Parse locally</text><text class="arch-meta" x="50" y="368">canonical pages</text><text class="arch-meta" x="50" y="394">12 mentions</text>
-        <rect class="arch-node" x="280" y="292" width="220" height="140"/><text class="arch-title" x="306" y="334">Block pairs</text><text class="arch-meta" x="306" y="368">types + neighbors</text><text class="arch-count" x="306" y="414">15</text><text class="arch-meta" x="374" y="405">candidates</text>
+        <rect class="arch-node" x="24" y="292" width="216" height="140"/><text class="arch-title" x="50" y="337">Parse locally</text><text class="arch-meta" x="50" y="374">canonical pages</text><text class="arch-meta" x="50" y="405">12 mentions</text>
+        <rect class="arch-node" x="280" y="292" width="220" height="140"/><text class="arch-title" x="306" y="337">Block pairs</text><text class="arch-meta" x="306" y="374">types + neighbors</text><text class="arch-count" x="306" y="417">15</text><text class="arch-meta" x="374" y="408">candidates</text>
         <rect class="arch-node-accent" x="540" y="292" width="220" height="140"/><text class="arch-zone-label" x="566" y="325" fill="#ffffff">JEV</text><text class="arch-title-light" x="566" y="365">Choose one</text><text class="arch-title-light" x="566" y="395">relation</text>
-        <rect class="arch-node-soft" x="800" y="292" width="220" height="140"/><text class="arch-title" x="826" y="334">Evidence gate</text><text class="arch-count" x="826" y="394">4</text><text class="arch-meta" x="886" y="386">proposed</text><text class="arch-meta" x="826" y="417">11 rejected · 0 review</text>
+        <rect class="arch-node-soft" x="800" y="292" width="220" height="140"/><text class="arch-title" x="826" y="334">Evidence gate</text><text class="arch-count" x="826" y="394">4</text><text class="arch-meta" x="886" y="386">proposed</text><text class="arch-meta" x="826" y="417">11 rejected</text><text class="arch-meta" x="936" y="417">0 review</text>
         <rect class="arch-node" x="1060" y="278" width="316" height="168"/>
         <line class="graph-edge" x1="1190" y1="362" x2="1118" y2="315"/><line class="graph-edge" x1="1190" y1="362" x2="1118" y2="413"/><line class="graph-edge" x1="1190" y1="362" x2="1300" y2="362"/>
         <text class="graph-edge-label" x="1128" y="336">founded</text><text class="graph-edge-label" x="1125" y="397">acquired</text><text class="graph-edge-label" x="1230" y="350">released</text>
