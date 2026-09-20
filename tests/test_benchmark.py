@@ -1,8 +1,17 @@
 import json
 from pathlib import Path
 
-from jevgraph.benchmark import benchmark_plan, merge_benchmark_runs, run_lexical_benchmark
+import pytest
+
+from jevgraph.benchmark import (
+    benchmark_plan,
+    merge_benchmark_runs,
+    run_jev_benchmark,
+    run_lexical_benchmark,
+)
 from jevgraph.fewrel import sample_fewrel
+from jevgraph.models import RequestReceipt
+from jevgraph.providers.gateway import GatewayAnswer, GatewayJevClient, ProviderFailure
 
 
 def _dataset(path: Path) -> None:
@@ -35,10 +44,14 @@ def test_fewrel_sampling_and_plan_are_deterministic(tmp_path: Path) -> None:
     second = sample_fewrel(tmp_path, relation_count=2, examples_per_relation=2, seed=9)
 
     assert first == second
-    plan = benchmark_plan(first, batch_size=3)
+    plan = benchmark_plan(
+        first, batch_size=3, choice_set="relations-only", chat_max_output_tokens=4096
+    )
     assert plan["cases"] == 4
     assert plan["requests"] == 2
     assert plan["illustrative_input_cost_usd"] > 0
+    assert plan["choice_set"] == "relations-only"
+    assert plan["chat_max_output_tokens"] == 4096
 
 
 def test_lexical_baseline_reports_complete_coverage(tmp_path: Path) -> None:
@@ -109,3 +122,174 @@ def test_merge_preserves_failed_receipts_and_deduplicates_predictions(tmp_path: 
     assert len(merged.receipts) == 2
     assert merged.summary()["coverage"] == 0.5
     assert merged.summary()["unknown_cost_requests"] == 1
+
+
+def test_direct_relation_only_request_hides_gold_bearing_case_ids(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _dataset(tmp_path)
+    sample = sample_fewrel(tmp_path, relation_count=2, examples_per_relation=1, seed=9)
+    client = GatewayJevClient(
+        api_key="secret-key-value", approved_budget_usd=0.05, call_ceiling=2
+    )
+    seen_ids: list[str] = []
+
+    def evaluate(*, state: dict, questions: dict) -> tuple[dict, RequestReceipt]:
+        provider_ids = set(state["cases"])
+        assert provider_ids == set(questions)
+        assert len(provider_ids) == 1
+        provider_id = next(iter(provider_ids))
+        seen_ids.append(provider_id)
+        assert provider_id.startswith("case_")
+        assert "P" not in provider_id
+        assert "none" not in questions[provider_id]["criteria"]
+        assert "insufficient_evidence" not in questions[provider_id]["criteria"]
+        assert all(case.id not in json.dumps(state) for case in sample.cases)
+        return (
+            {
+                provider_id: GatewayAnswer(
+                    selected="P1", probabilities={"P1": 1.0}, confidence=1.0
+                )
+            },
+            RequestReceipt(
+                request_id=f"request-{provider_id}",
+                provider="test",
+                requested_model=client.model,
+                resolved_model=None,
+                request_sha256="hash",
+                question_count=1,
+                input_tokens=10,
+                output_tokens=1,
+                latency_ms=1,
+                cost_usd=0.0,
+                cost_basis="provider",
+                status="success",
+            ),
+        )
+
+    monkeypatch.setattr(client, "evaluate", evaluate)
+    result = run_jev_benchmark(
+        sample, client=client, batch_size=1, choice_set="relations-only"
+    )
+
+    assert seen_ids == ["case_00000", "case_00001"]
+    assert result.config["task_mode"] == "direct_closed_set_relation_only"
+    assert result.config["provider_case_id_contains_gold_relation"] is False
+    assert result.summary()["illustrative_jev_list_price_equivalent_usd"] == pytest.approx(
+        0.00000084
+    )
+
+
+def test_direct_runner_continues_after_known_cost_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _dataset(tmp_path)
+    sample = sample_fewrel(tmp_path, relation_count=2, examples_per_relation=1, seed=9)
+    client = GatewayJevClient(
+        api_key="secret-key-value", approved_budget_usd=0.05, call_ceiling=2
+    )
+    calls = 0
+
+    def evaluate(*, state: dict, questions: dict) -> tuple[dict, RequestReceipt]:
+        nonlocal calls
+        calls += 1
+        provider_id = next(iter(questions))
+        if calls == 1:
+            raise ProviderFailure(
+                "known failure",
+                RequestReceipt(
+                    request_id="failed",
+                    provider="test",
+                    requested_model=client.model,
+                    resolved_model=None,
+                    request_sha256="failed-hash",
+                    question_count=1,
+                    input_tokens=1,
+                    output_tokens=1,
+                    latency_ms=1,
+                    cost_usd=0.01,
+                    cost_basis="provider",
+                    status="failed",
+                    error="incomplete_choice",
+                ),
+            )
+        return (
+            {
+                provider_id: GatewayAnswer(
+                    selected="P1", probabilities={"P1": 1.0}, confidence=1.0
+                )
+            },
+            RequestReceipt(
+                request_id="success",
+                provider="test",
+                requested_model=client.model,
+                resolved_model=None,
+                request_sha256="success-hash",
+                question_count=1,
+                input_tokens=1,
+                output_tokens=1,
+                latency_ms=1,
+                cost_usd=0.01,
+                cost_basis="provider",
+                status="success",
+            ),
+        )
+
+    monkeypatch.setattr(client, "evaluate", evaluate)
+    result = run_jev_benchmark(
+        sample,
+        client=client,
+        batch_size=1,
+        choice_set="relations-only",
+        continue_after_known_failure=True,
+    )
+
+    assert calls == 2
+    assert [receipt.status for receipt in result.receipts] == ["failed", "success"]
+    assert result.summary()["coverage"] == 0.5
+
+
+def test_direct_runner_stops_after_unknown_cost_failure_without_retry(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _dataset(tmp_path)
+    sample = sample_fewrel(tmp_path, relation_count=2, examples_per_relation=1, seed=9)
+    client = GatewayJevClient(
+        api_key="secret-key-value", approved_budget_usd=0.05, call_ceiling=2
+    )
+    calls = 0
+
+    def evaluate(*, state: dict, questions: dict) -> tuple[dict, RequestReceipt]:
+        nonlocal calls
+        calls += 1
+        raise ProviderFailure(
+            "billing status unknown",
+            RequestReceipt(
+                request_id="unknown-cost-failure",
+                provider="test",
+                requested_model=client.model,
+                resolved_model=None,
+                request_sha256="failed-hash",
+                question_count=1,
+                input_tokens=None,
+                output_tokens=None,
+                latency_ms=1,
+                cost_usd=None,
+                cost_basis="unknown",
+                status="failed",
+                error="HTTP 503",
+            ),
+        )
+
+    monkeypatch.setattr(client, "evaluate", evaluate)
+
+    with pytest.raises(ProviderFailure, match="billing status unknown"):
+        run_jev_benchmark(
+            sample,
+            client=client,
+            batch_size=1,
+            choice_set="relations-only",
+            continue_after_known_failure=True,
+        )
+
+    assert calls == 1

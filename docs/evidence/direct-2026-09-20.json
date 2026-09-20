@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-20",
+  "release": "v0.4.0",
+  "provider": "vercel-ai-gateway",
+  "task_mode": "direct_closed_set_relation_only",
+  "scope": "Choose one supplied FewRel relation for a supplied directed entity pair; entity extraction, candidate generation, negative rejection, graph truth, and human approval are out of scope.",
+  "fewrel": {
+    "split": "train_wiki",
+    "source_revision": "278a2315d2138810a379cd8d5718914dc56e2582",
+    "seed": 17,
+    "relations": 16,
+    "cases_per_relation": 10,
+    "planned_cases": 160,
+    "positive_only": true
+  },
+  "shared_request_configuration": {
+    "choice_set": "relations-only",
+    "abstention_options": false,
+    "provider_case_ids": "opaque case_00000-style IDs; original FewRel IDs remain local to scoring",
+    "batch_size": 1,
+    "temperature": 0,
+    "execution": "sequential",
+    "retries": 0,
+    "fallbacks": 0,
+    "timeout_seconds": 55,
+    "chat_max_output_tokens": 4096
+  },
+  "preflight": {
+    "conservative_model_cost_ceilings_usd": {
+      "typesafe-ai/jev": 0.016012668,
+      "openai/gpt-5.6-luna": 0.8701342,
+      "deepseek/deepseek-v4.1-flash": 0.9124173
+    },
+    "combined_conservative_model_cost_ceiling_usd": 1.798564168,
+    "project_absolute_cap_usd": 5.0,
+    "note": "Byte-as-token input plus configured output ceilings; not a provider quote or hard billing cap."
+  },
+  "models": {
+    "typesafe-ai/jev": {
+      "planned_case_accuracy": 0.875,
+      "coverage": 0.99375,
+      "successful_requests": 159,
+      "attempted_requests": 160,
+      "request_latency_p50_ms": 313,
+      "request_latency_p95_ms": 431,
+      "sequential_request_time_ms": 51969,
+      "input_tokens": 156228,
+      "output_tokens": 29404,
+      "provider_reported_cost_usd": 0.0,
+      "illustrative_input_list_price_equivalent_usd": 0.006561576,
+      "unknown_cost_requests": 1,
+      "failure_modes": ["HTTP 503 at global case offset 98; not retried; non-overlapping continuation began at offset 99."],
+      "sanitized_raw_sha256": "7cc95149a388b86bb08bd750d01a4c6ccd87ed2d20a483e595019bd74f7bb557"
+    },
+    "openai/gpt-5.6-luna": {
+      "planned_case_accuracy": 0.9375,
+      "coverage": 1.0,
+      "successful_requests": 160,
+      "attempted_requests": 160,
+      "request_latency_p50_ms": 1769,
+      "request_latency_p95_ms": 4104,
+      "sequential_request_time_ms": 333864,
+      "input_tokens": 82418,
+      "output_tokens": 15446,
+      "provider_reported_cost_usd": 0.0350188,
+      "unknown_cost_requests": 0,
+      "failure_modes": [],
+      "sanitized_raw_sha256": "7279a18ec819a2e7da18e3034763dc9bb3b5cb0f76650eac43f5f87574948fdd"
+    },
+    "deepseek/deepseek-v4.1-flash": {
+      "planned_case_accuracy": 0.93125,
+      "coverage": 0.99375,
+      "successful_requests": 159,
+      "attempted_requests": 160,
+      "request_latency_p50_ms": 2276,
+      "request_latency_p95_ms": 15627,
+      "sequential_request_time_ms": 639610,
+      "input_tokens": 87709,
+      "output_tokens": 76936,
+      "provider_reported_cost_usd": 0.099019152,
+      "unknown_cost_requests": 0,
+      "failure_modes": ["One single-case completion reached the 4096-token cap and failed incomplete_choice; its known-cost receipt was retained and the case was not retried."],
+      "sanitized_raw_sha256": "9df51bc68601e684a0d8f545dbf62b0d8f4abc3e714e39a5924247c130a75e06"
+    }
+  },
+  "cost_audit": {
+    "known_provider_reported_cost_usd": 0.134037952,
+    "unknown_cost_requests": 1,
+    "conservative_preflight_run_ceiling_usd": 1.798564168,
+    "project_absolute_cap_usd": 5.0
+  },
+  "limitations": [
+    "The supplied pair makes this a relation-identification measurement, not an end-to-end knowledge-graph benchmark.",
+    "FewRel is positive-only here, so the removal of abstention options does not measure negative-pair precision.",
+    "This public sample can have appeared in model training data.",
+    "Provider choices are candidate decisions, not graph truth, calibration evidence, or human approval."
+  ]
+}
