@@ -83,7 +83,7 @@ source metadata.
 Each `.page` fills one viewport with a minimum height of 720px and uses a 42px × 28px desktop inset.
 At 1000px and below, the inset contracts to 28px × 22px while all three pages remain one-screen
 compositions. Page one is a left-to-right architecture diagram: local document processing and
-candidate blocking, one bounded model choice, a deterministic evidence gate, and the resulting
+candidate selection, one bounded model choice, a deterministic evidence gate, and the resulting
 candidate graph. Pages two and three use two- and three-column chart grids. The fixed numbered rail
 provides direct and keyboard-assisted page movement.
 
@@ -106,8 +106,8 @@ Warm-paper panels use a 1px rule, 17–21px internal padding, large task titles,
 ### Architecture diagram
 
 The first page uses two stacked flows. A neutral high-level generic LLM knowledge-graph pipeline
-establishes the familiar document-to-triples pattern; the teal JevGraph flow below shows the local
-blocking alternative. Teal marks the bounded Jev decision and accepted graph edges. The pinned
+establishes the familiar document-to-triples pattern; the teal JevGraph flow below shows how local
+preparation narrows the model's job to one bounded choice. Teal marks the bounded Jev decision and accepted graph edges. The pinned
 `12 → 15 → 4` counts are embedded in the lower flow rather than repeated as prose.
 
 ### Horizontal bars
