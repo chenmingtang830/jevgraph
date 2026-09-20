@@ -15,12 +15,19 @@ from .benchmark import (
     run_lexical_benchmark,
 )
 from .builder import GraphBuilder
+from .episodic import episodic_plan, merge_episodic_runs, run_episodic_benchmark
 from .export import export_csv, export_neo4j
 from .extract import load_entities
-from .fewrel import fetch_fewrel, sample_fewrel
+from .fewrel import fetch_fewrel, sample_fewrel, sample_fewrel_episodes
 from .models import Document
 from .ontology import Ontology
-from .providers import GatewayChatClient, GatewayJevClient, JevProvider, KeywordProvider
+from .providers import (
+    CHAT_MODELS,
+    GatewayChatClient,
+    GatewayJevClient,
+    JevProvider,
+    KeywordProvider,
+)
 
 
 def parser() -> argparse.ArgumentParser:
@@ -28,7 +35,7 @@ def parser() -> argparse.ArgumentParser:
         prog="jevgraph",
         description="Build evidence-backed candidate knowledge graphs with typed decisions.",
     )
-    root.add_argument("--version", action="version", version="jevgraph 0.2.0")
+    root.add_argument("--version", action="version", version="jevgraph 0.3.0")
     commands = root.add_subparsers(dest="command", required=True)
 
     build = commands.add_parser("build", help="Build a candidate graph from one text document.")
@@ -61,6 +68,39 @@ def parser() -> argparse.ArgumentParser:
     benchmark.add_argument("--out", type=Path)
     _live_arguments(benchmark, include_batch_size=False)
 
+    official = commands.add_parser(
+        "benchmark-official",
+        help="Plan or run an official-compatible FewRel 1.0 validation track.",
+    )
+    official.add_argument("--data-dir", type=Path, default=Path("data/fewrel"))
+    official.add_argument(
+        "--model",
+        choices=[GatewayJevClient.model, *CHAT_MODELS],
+        required=True,
+    )
+    official.add_argument("--ways", type=int, choices=[5, 10], default=5)
+    official.add_argument("--shots", type=int, choices=[1, 5], default=1)
+    official.add_argument("--queries-per-relation", type=int, default=1)
+    official.add_argument("--episodes", type=int, default=100)
+    official.add_argument("--seed", type=int, default=7)
+    official.add_argument("--episode-offset", type=int, default=0)
+    official.add_argument("--episode-limit", type=int)
+    official.add_argument(
+        "--execute",
+        action="store_true",
+        help="Run live requests; omission prints a no-call plan.",
+    )
+    official.add_argument(
+        "--continue-after-known-failure",
+        action="store_true",
+        help=(
+            "Preserve a failed receipt and continue to the next episode only when the failed "
+            "request's cost is known; never retries the failed episode."
+        ),
+    )
+    official.add_argument("--out", type=Path)
+    _live_arguments(official, include_batch_size=False)
+
     export = commands.add_parser("export", help="Export proposed edges from a graph run.")
     export.add_argument("run", type=Path)
     export.add_argument("--format", choices=["csv", "neo4j"], required=True)
@@ -72,6 +112,13 @@ def parser() -> argparse.ArgumentParser:
     merge.add_argument("runs", nargs="+", type=Path)
     merge.add_argument("--expected-cases", type=int, required=True)
     merge.add_argument("--out", type=Path, required=True)
+
+    merge_episodes = commands.add_parser(
+        "merge-episodic", help="Merge non-overlapping episodic shards and failed receipts."
+    )
+    merge_episodes.add_argument("runs", nargs="+", type=Path)
+    merge_episodes.add_argument("--expected-episodes", type=int, required=True)
+    merge_episodes.add_argument("--out", type=Path, required=True)
     return root
 
 
@@ -93,10 +140,20 @@ def main(argv: list[str] | None = None) -> int:
             return _build(args)
         if args.command == "benchmark":
             return _benchmark(args)
+        if args.command == "benchmark-official":
+            return _benchmark_official(args)
         if args.command == "export":
             return _export(args)
         if args.command == "merge-benchmarks":
             result = merge_benchmark_runs(args.runs, expected_cases=args.expected_cases)
+            payload = result.to_dict()
+            _write_json(args.out, payload)
+            _print(payload["summary"])
+            return 0
+        if args.command == "merge-episodic":
+            result = merge_episodic_runs(
+                args.runs, expected_episodes=args.expected_episodes
+            )
             payload = result.to_dict()
             _write_json(args.out, payload)
             _print(payload["summary"])
@@ -186,6 +243,70 @@ def _benchmark(args: argparse.Namespace) -> int:
     payload = result.to_dict()
     if args.out is not None:
         _write_json(args.out, payload)
+    _print(payload["summary"])
+    return 0
+
+
+def _benchmark_official(args: argparse.Namespace) -> int:
+    sample = sample_fewrel_episodes(
+        args.data_dir,
+        ways=args.ways,
+        shots=args.shots,
+        queries_per_relation=args.queries_per_relation,
+        episode_count=args.episodes,
+        seed=args.seed,
+    )
+    if args.episode_offset < 0:
+        raise ValueError("--episode-offset cannot be negative.")
+    if args.episode_limit is not None and args.episode_limit < 1:
+        raise ValueError("--episode-limit must be positive.")
+    end = (
+        None
+        if args.episode_limit is None
+        else args.episode_offset + args.episode_limit
+    )
+    sample = type(sample)(
+        episodes=sample.episodes[args.episode_offset : end],
+        ways=sample.ways,
+        shots=sample.shots,
+        queries_per_relation=sample.queries_per_relation,
+        seed=sample.seed,
+        split=sample.split,
+        source_revision=sample.source_revision,
+    )
+    if not sample.episodes:
+        raise ValueError("The requested FewRel episode slice is empty.")
+    if not args.execute:
+        _print(episodic_plan(sample, model=args.model))
+        return 0
+    if args.out is None:
+        raise ValueError("--out is required with --execute.")
+    if args.approved_budget_usd is None:
+        raise ValueError("Live benchmark runs require --approved-budget-usd.")
+    api_key = os.environ.get("AI_GATEWAY_API_KEY")
+    if not api_key:
+        raise ValueError("AI_GATEWAY_API_KEY is not set.")
+    if args.model == GatewayJevClient.model:
+        client: GatewayJevClient | GatewayChatClient = GatewayJevClient(
+            api_key=api_key,
+            approved_budget_usd=args.approved_budget_usd,
+            call_ceiling=args.call_ceiling,
+        )
+    else:
+        client = GatewayChatClient(
+            api_key=api_key,
+            model=args.model,
+            approved_budget_usd=args.approved_budget_usd,
+            call_ceiling=args.call_ceiling,
+        )
+    result = run_episodic_benchmark(
+        sample,
+        client=client,
+        progress_path=args.out,
+        continue_after_known_failure=args.continue_after_known_failure,
+    )
+    payload = result.to_dict()
+    _write_json(args.out, payload)
     _print(payload["summary"])
     return 0
 

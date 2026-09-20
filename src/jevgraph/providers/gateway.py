@@ -23,6 +23,8 @@ GATEWAY_URL = "https://ai-gateway.vercel.sh/v4/ai/evaluation-model"
 MODEL_ID = "typesafe-ai/jev"
 MAX_REQUEST_BYTES = 96_000
 MAX_RESPONSE_BYTES = 256_000
+# Snapshot from the Vercel Gateway /v1/models catalog on 2026-09-20. Some public
+# catalog surfaces marked Jev free, so receipts remain the billing source of truth.
 PRICE_PER_MILLION_INPUT_TOKENS = 0.042
 
 

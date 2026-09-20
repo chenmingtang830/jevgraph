@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-20",
+  "provider": "vercel-ai-gateway",
+  "scope": "public FewRel episodic relation selection for supplied directed entity pairs",
+  "protocol": {
+    "track": "fewrel-1.0-official-compatible-validation",
+    "split": "val_wiki",
+    "source_revision": "278a2315d2138810a379cd8d5718914dc56e2582",
+    "source_sha256": "76bb44c2485b6faed358a3ce040eadafcc8a8835245cd7e6afc1bef672d4a0bf",
+    "seed": 17,
+    "ways": 5,
+    "shots": 1,
+    "queries_per_relation": 1,
+    "episodes": 100,
+    "planned_queries": 500,
+    "query_mode": "batched_transductive",
+    "opaque_relation_labels": true,
+    "opaque_query_ids": true,
+    "independently_shuffled_support_and_queries": true,
+    "retries": 0
+  },
+  "canary": {
+    "relationship_to_formal_run": "The first five episodes of the same seed-17 stream; contract checks, not independent evaluation data.",
+    "typesafe-ai/jev": {
+      "correct": 18,
+      "planned_queries": 25,
+      "accuracy": 0.72,
+      "successful_episodes": 5,
+      "attempted_episodes": 5,
+      "known_cost_usd": 0.0
+    },
+    "openai/gpt-5.6-luna": {
+      "correct": 24,
+      "planned_queries": 25,
+      "accuracy": 0.96,
+      "successful_episodes": 5,
+      "attempted_episodes": 5,
+      "known_cost_usd": 0.005344
+    },
+    "deepseek/deepseek-v4.1-flash": {
+      "correct": 25,
+      "planned_queries": 25,
+      "accuracy": 1.0,
+      "successful_episodes": 5,
+      "attempted_episodes": 5,
+      "known_cost_usd": 0.0224451
+    }
+  },
+  "formal": {
+    "typesafe-ai/jev": {
+      "correct": 428,
+      "completed_queries": 500,
+      "planned_queries": 500,
+      "complete_case_accuracy": 0.856,
+      "planned_case_accuracy": 0.856,
+      "coverage": 1.0,
+      "successful_episodes": 100,
+      "attempted_episodes": 100,
+      "failed_episodes": 0,
+      "request_latency_p50_ms": 368,
+      "request_latency_p95_ms": 471,
+      "sequential_request_time_ms": 36970,
+      "input_tokens": 235361,
+      "output_tokens": 31800,
+      "provider_reported_cost_usd": 0.0,
+      "unknown_cost_requests": 0,
+      "illustrative_list_price_equivalent_usd": 0.009885162,
+      "gate": {
+        "selected_probability": 0.85,
+        "confidence": 0.8,
+        "queries": 286,
+        "correct": 278,
+        "coverage": 0.572,
+        "accuracy": 0.972027972027972
+      }
+    },
+    "openai/gpt-5.6-luna": {
+      "correct": 490,
+      "completed_queries": 500,
+      "planned_queries": 500,
+      "complete_case_accuracy": 0.98,
+      "planned_case_accuracy": 0.98,
+      "coverage": 1.0,
+      "successful_episodes": 100,
+      "attempted_episodes": 100,
+      "failed_episodes": 0,
+      "request_latency_p50_ms": 6142,
+      "request_latency_p95_ms": 16651,
+      "sequential_request_time_ms": 775439,
+      "input_tokens": 85403,
+      "output_tokens": 75602,
+      "provider_reported_cost_usd": 0.107803,
+      "unknown_cost_requests": 0
+    },
+    "deepseek/deepseek-v4.1-flash": {
+      "correct": 425,
+      "completed_queries": 430,
+      "planned_queries": 500,
+      "complete_case_accuracy": 0.9883720930232558,
+      "planned_case_accuracy": 0.85,
+      "coverage": 0.86,
+      "successful_episodes": 86,
+      "attempted_episodes": 100,
+      "failed_episodes": 14,
+      "request_latency_p50_ms": 11821,
+      "request_latency_p95_ms": 49474,
+      "sequential_request_time_ms": 1834854,
+      "input_tokens_known": 92879,
+      "output_tokens_known": 423869,
+      "provider_reported_known_cost_usd": 0.49140142,
+      "unknown_cost_requests": 2,
+      "failure_modes": {
+        "incomplete_choice_at_16384_output_tokens": 12,
+        "timeout_at_55_seconds": 2
+      },
+      "known_failed_request_cost_usd": 0.2393376,
+      "known_failed_request_output_tokens": 196608
+    }
+  },
+  "pairwise_jev_luna": {
+    "both_correct": 426,
+    "jev_only_correct": 2,
+    "luna_only_correct": 64,
+    "both_wrong": 8
+  },
+  "jev_pricing_snapshot": {
+    "observed_at": "2026-09-20",
+    "gateway_models_api": "https://ai-gateway.vercel.sh/v1/models",
+    "api_input_price_per_token_usd": 0.000000042,
+    "api_output_price_per_token_usd": 0.0,
+    "public_catalog_free_label_observed": true,
+    "formal_receipt_reported_cost_usd": 0.0,
+    "interpretation": "Receipts are the billing evidence for this run; the API price is used only for an illustrative forward estimate because Vercel catalog surfaces were inconsistent."
+  },
+  "budget_audit": {
+    "approved_cap_usd": 5.0,
+    "v03_known_cost_usd": 0.62699352,
+    "all_project_known_cost_usd": 0.7771775,
+    "all_project_conservative_upper_bound_usd": 0.9818087,
+    "upper_bound_method": "Prior v0.2 conservative bound plus v0.3 known costs and two unknown DeepSeek requests charged at the configured maximum-output ceiling."
+  },
+  "limitations": [
+    "Public val_wiki is not the hidden official FewRel test set.",
+    "FewRel supplied entity pairs; this does not evaluate entity discovery or candidate blocking recall.",
+    "Queries were batched per episode, so general chat models could inspect other queries despite shuffled order and independent-judgment instructions.",
+    "DeepSeek complete-case accuracy excludes 70 queries from failed episodes; planned-case accuracy counts them against the frozen denominator.",
+    "Provider output is a candidate relation decision, not truth, human approval, or a governed graph edge."
+  ]
+}
