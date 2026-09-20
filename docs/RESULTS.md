@@ -1,6 +1,6 @@
 # Results
 
-Status: v0.4.1 controlled direct relation-selection benchmark completed on 2026-09-20.
+Status: v0.4.2 controlled direct relation-selection benchmark completed on 2026-09-20.
 
 This is a narrow public FewRel relation-identification experiment, not a general model ranking,
 end-to-end KG score, graph truth claim, calibration result, or Human Approval. The primary aggregate
@@ -8,7 +8,7 @@ is [`direct-reasoning-none-2026-09-20.json`](evidence/direct-reasoning-none-2026
 Release artifacts contain sanitized IDs, predictions, and receipts only—never FewRel sentences,
 prompts, credentials, headers, or private reasoning.
 
-## v0.4.1 primary: chat reasoning disabled
+## v0.4.2 primary: chat reasoning disabled
 
 The frozen sample is FewRel 1.0 `train_wiki`, pinned revision
 `278a2315d2138810a379cd8d5718914dc56e2582`: 16 relations × 10 cases, seed 17. Each request
@@ -30,9 +30,12 @@ equivalent chat reasoning-effort field. Planned-case accuracy counts uncovered c
 | Input / output tokens | 156,228 / 29,404 | 82,418 / 2,592 | 83,739 / 2,270 |
 | Provider-reported cost | $0 | $0.019594 | $0.023389532 |
 | Jev illustrative input-price equivalent | $0.006561576 | — | — |
+| Cost / planned decision | $0.000041010 illustrative | $0.000122463 receipt | $0.000146185 receipt |
 
 The chat inputs are semantically identical but provider usage accounting/tokenizers differ slightly.
 Jev's input is larger because it uses a native typed `state + questions` payload rather than chat.
+Its output is also intentionally richer: every choice response includes the selected relation, a
+probability for each of the 16 criteria, and confidence, while chat baselines return one relation ID.
 Explicitly disabling chat reasoning reduced output cost and tail latency: Luna output fell from
 15,446 to 2,592 tokens; DeepSeek output fell from 76,936 to 2,270. DeepSeek retained its
 planned-case accuracy; Luna dropped from 93.75% to 89.375%. Gateway usage does not separately
@@ -49,7 +52,7 @@ below the `$5` project cap. Jev's illustrative value is not an invoice.
 
 The original v0.4.0 chat results used provider-default reasoning because no explicit effort was
 sent. They remain published for audit at [`direct-2026-09-20.json`](evidence/direct-2026-09-20.json)
-but are superseded for the primary comparison by the controlled v0.4.1 table.
+but are superseded for the primary comparison by the controlled v0.4.2 table.
 
 | Metric | Luna default | DeepSeek default |
 | --- | ---: | ---: |

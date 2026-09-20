@@ -183,6 +183,9 @@ def test_direct_relation_only_request_hides_gold_bearing_case_ids(
     assert result.summary()["illustrative_jev_list_price_equivalent_usd"] == pytest.approx(
         0.00000084
     )
+    assert result.summary()[
+        "illustrative_jev_list_price_equivalent_per_planned_case_usd"
+    ] == pytest.approx(0.00000042)
 
 
 def test_direct_runner_continues_after_known_cost_failure(
