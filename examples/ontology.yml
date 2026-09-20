@@ -1,0 +1,25 @@
+version: 1
+name: company-events
+relations:
+  founded:
+    description: The source person or organization explicitly founded the target organization.
+    source_types: [person, organization]
+    target_types: [organization]
+    patterns: [founded, co-founded, established]
+  acquired:
+    description: The source organization explicitly acquired the target organization.
+    source_types: [organization]
+    target_types: [organization]
+    patterns: [acquired, bought, purchased]
+  partnered_with:
+    description: The source and target organizations explicitly announced a partnership.
+    source_types: [organization]
+    target_types: [organization]
+    symmetric: true
+    patterns: [partnered with, partnership with, collaboration with]
+  released:
+    description: The source organization explicitly released or launched the target product.
+    source_types: [organization]
+    target_types: [product]
+    patterns: [released, launched, introduced]
+

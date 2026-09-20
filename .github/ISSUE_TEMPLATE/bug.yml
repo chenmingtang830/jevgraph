@@ -1,0 +1,27 @@
+name: Bug report
+description: Report a reproducible JevGraph defect without private data or credentials.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Include the smallest synthetic reproduction you can share.
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command and environment
+      description: Remove keys, private paths, and private source text.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety check
+      options:
+        - label: I removed credentials and private or licensed source text.
+          required: true
+

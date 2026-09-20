@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-20",
+  "provider": "vercel-ai-gateway",
+  "requested_model": "typesafe-ai/jev",
+  "resolved_model": null,
+  "fewrel": {
+    "source_revision": "278a2315d2138810a379cd8d5718914dc56e2582",
+    "seed": 17,
+    "relation_ids": [
+      "P101",
+      "P127",
+      "P1346",
+      "P140",
+      "P1411",
+      "P1435",
+      "P150",
+      "P175",
+      "P176",
+      "P31",
+      "P449",
+      "P466",
+      "P57",
+      "P6",
+      "P706",
+      "P750"
+    ],
+    "cases": 160,
+    "correct": 136,
+    "accuracy": 0.85,
+    "lexical_baseline_accuracy": 0.13125,
+    "gate_probability": 0.85,
+    "gate_confidence": 0.8,
+    "gated_cases": 95,
+    "gated_coverage": 0.59375,
+    "gated_correct": 95,
+    "gated_accuracy": 1.0,
+    "attempted_requests": 21,
+    "successful_requests": 20,
+    "failed_requests": 1,
+    "failure": "HTTP 503",
+    "input_tokens_successful": 128988,
+    "output_tokens_successful": 32456,
+    "request_latency_p50_ms": 444,
+    "request_latency_p95_ms": 625,
+    "provider_reported_cost_usd_successful": 0.0,
+    "unknown_cost_requests": 1,
+    "list_price_equivalent_successful_input_usd": 0.005417496,
+    "probability_renormalization": {
+      "requests": 12,
+      "answers": 16,
+      "accepted_sum_envelope": [0.95, 1.05]
+    }
+  },
+  "synthetic_end_to_end": {
+    "mentions": 12,
+    "candidate_edges": 15,
+    "proposed_edges": 4,
+    "review_edges": 0,
+    "rejected_edges": 11,
+    "requests": 2,
+    "input_tokens": 4916,
+    "output_tokens": 1048,
+    "provider_reported_cost_usd": 0.0
+  },
+  "scope": [
+    "FewRel contains supplied entity pairs and positive relation labels.",
+    "The pilot does not measure entity discovery, candidate recall, or negative-edge precision.",
+    "The 0.85 and 0.80 gates were project defaults, not tuned on this pilot.",
+    "The Gateway response did not report a resolved Jev revision.",
+    "A failed request has unknown billing status; provider-reported zero applies only to successful requests."
+  ]
+}
+

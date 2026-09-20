@@ -1,0 +1,6 @@
+Mira Chen founded Northstar Labs in 2021. Northstar Labs released OrbitDB, a graph storage product, in 2024.
+
+In 2025, Northstar Labs acquired Atlas Systems. Later that year, Northstar Labs announced a partnership with Vector Works to improve graph search.
+
+The document does not state that Atlas Systems created OrbitDB or that Vector Works acquired Northstar Labs.
+

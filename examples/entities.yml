@@ -1,0 +1,23 @@
+version: 1
+entities:
+  - id: northstar_labs
+    label: Northstar Labs
+    type: organization
+    aliases: [Northstar Labs, Northstar]
+  - id: mira_chen
+    label: Mira Chen
+    type: person
+    aliases: [Mira Chen, Chen]
+  - id: orbit_db
+    label: OrbitDB
+    type: product
+    aliases: [OrbitDB]
+  - id: atlas_systems
+    label: Atlas Systems
+    type: organization
+    aliases: [Atlas Systems, Atlas]
+  - id: vector_works
+    label: Vector Works
+    type: organization
+    aliases: [Vector Works]
+
