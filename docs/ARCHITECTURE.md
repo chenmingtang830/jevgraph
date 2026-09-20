@@ -47,3 +47,16 @@ both a configured key and an explicit dollar budget.
 
 The default live batch size is eight. It is based on the v0.1 pilot's observed Gateway behavior and
 does not claim a provider-side concurrency guarantee.
+
+The GPT-5.6 Luna and DeepSeek V4.1 Flash adapters exist only in the FewRel benchmark runner. They
+receive the same relation schema and supplied entity pairs, use temperature zero, and must return
+one relation ID per case in a strict JSON map. They do not emit probabilities, cannot pass the
+graph builder's probability/confidence gates, and are not silently substituted for Jev.
+
+## What the model does—and does not do
+
+The model sees only candidates created upstream. For the end-to-end demo, exact gazetteer matching
+creates mentions and deterministic same-sentence/type blocking creates candidate pairs. For the
+FewRel track, the dataset supplies the entity pair directly. The provider selects a relation for
+each pair. It does not perform open-ended entity discovery, pair discovery, ontology induction,
+coreference resolution, graph completion, approval, or truth determination.
