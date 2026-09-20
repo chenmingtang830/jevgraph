@@ -15,6 +15,7 @@ from .benchmark import (
     run_lexical_benchmark,
 )
 from .builder import GraphBuilder
+from .e2e_benchmark import run_e2e_benchmark
 from .episodic import episodic_plan, merge_episodic_runs, run_episodic_benchmark
 from .export import export_csv, export_neo4j
 from .extract import load_entities
@@ -99,6 +100,22 @@ def parser() -> argparse.ArgumentParser:
     benchmark.add_argument("--out", type=Path)
     _live_arguments(benchmark, include_batch_size=False)
 
+    e2e = commands.add_parser(
+        "benchmark-e2e",
+        help="Run the digest-pinned configured document-to-graph smoke benchmark.",
+    )
+    e2e.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("benchmarks/company-events-v1.json"),
+    )
+    e2e.add_argument("--provider", choices=["keyword", "jev"], default="keyword")
+    e2e.add_argument("--out", type=Path)
+    e2e.add_argument("--probability-threshold", type=float, default=0.85)
+    e2e.add_argument("--confidence-threshold", type=float, default=0.80)
+    e2e.add_argument("--max-neighbors", type=int, default=20)
+    _live_arguments(e2e, include_batch_size=True)
+
     official = commands.add_parser(
         "benchmark-official",
         help="Plan or run an official-compatible FewRel 1.0 validation track.",
@@ -173,6 +190,8 @@ def main(argv: list[str] | None = None) -> int:
             return _benchmark(args)
         if args.command == "benchmark-official":
             return _benchmark_official(args)
+        if args.command == "benchmark-e2e":
+            return _benchmark_e2e(args)
         if args.command == "export":
             return _export(args)
         if args.command == "merge-benchmarks":
@@ -299,6 +318,26 @@ def _benchmark(args: argparse.Namespace) -> int:
     if args.out is not None:
         _write_json(args.out, payload)
     _print(payload["summary"])
+    return 0
+
+
+def _benchmark_e2e(args: argparse.Namespace) -> int:
+    if args.provider == "jev":
+        if args.out is None:
+            raise ValueError("--out is required for a live benchmark.")
+        provider = JevProvider(_client(args), batch_size=args.batch_size)
+    else:
+        provider = KeywordProvider()
+    result = run_e2e_benchmark(
+        args.manifest,
+        provider=provider,
+        probability_threshold=args.probability_threshold,
+        confidence_threshold=args.confidence_threshold,
+        max_neighbors=args.max_neighbors,
+    )
+    if args.out is not None:
+        _write_json(args.out, result)
+    _print(result["metrics"])
     return 0
 
 

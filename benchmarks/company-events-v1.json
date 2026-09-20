@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "name": "company-events-v1",
+  "description": "Repository-owned configured E2E smoke benchmark over canonical text.",
+  "files": {
+    "input": {
+      "path": "examples/company_events.txt",
+      "sha256": "0de6770d0562c102a6a06d627b0962eb2cc828417754142bb122296b6e999304"
+    },
+    "ontology": {
+      "path": "examples/ontology.yml",
+      "sha256": "f369b1c6157ad127bb27867a21f39d139ccec7ee1a779731d0b848cfc59eca1f"
+    },
+    "entities": {
+      "path": "examples/entities.yml",
+      "sha256": "a95f7c2a4306a98938b8480558462d5d98ffd7f9a76a86d8860f1b44205dd3a0"
+    }
+  },
+  "gold_edges": [
+    {"source": "mira_chen", "relation": "founded", "target": "northstar_labs"},
+    {"source": "northstar_labs", "relation": "released", "target": "orbit_db"},
+    {"source": "northstar_labs", "relation": "acquired", "target": "atlas_systems"},
+    {"source": "northstar_labs", "relation": "partnered_with", "target": "vector_works"}
+  ]
+}

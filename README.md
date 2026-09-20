@@ -146,6 +146,27 @@ FewRel supplies sentences, entity pairs, and Wikidata-property labels, so this t
 closed-set relation classification. It does not measure entity extraction, candidate recall,
 negative-edge rejection, or end-to-end graph quality.
 
+## Configured E2E smoke benchmark
+
+The repository also includes a deliberately small document-to-candidate-graph regression track.
+Its manifest pins the canonical text, ontology, and entity catalog by SHA-256, then scores candidate
+recall and proposed-edge precision/recall/F1 against four repository-owned gold edges:
+
+```bash
+uv run jevgraph benchmark-e2e \
+  --provider keyword \
+  --out runs/company-events-v1-local.json
+```
+
+The default local run has no provider cost. A Jev run uses the same fixed manifest and requires the
+normal explicit budget and call ceiling. This track begins at canonical text, so it does not
+re-measure DocJev/LiteParse parsing quality. Plain-text inputs have character evidence offsets but
+no page map; `page_mapping_applicable` is therefore false rather than a failed score.
+
+This is a smoke/regression benchmark, not external evidence of general KG quality. FewRel remains
+the public relation-selection benchmark; larger ontology-driven external datasets must retain their
+own licenses and are not bundled into this Apache-2.0 repository by default.
+
 ```bash
 uv run jevgraph fetch-fewrel --data-dir data/fewrel
 
