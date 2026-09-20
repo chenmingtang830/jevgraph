@@ -191,88 +191,38 @@
       <header class="topline"><div class="brand"><span class="brand-mark" aria-hidden="true"></span>JevGraph / project brief</div><div class="meta">Open source · v0.5.1 · Evidence first</div></header>
       <div class="architecture-head"><h1 id="project-title">Documents → <span>evidence-backed candidate graph</span></h1><p>O(n²) → O(nk)</p></div>
       <svg class="architecture" id="graph-architecture" viewBox="0 0 1400 520" role="img" aria-labelledby="architecture-title architecture-desc">
-        <title id="architecture-title">JevGraph end-to-end architecture</title>
-        <desc id="architecture-desc">Documents are parsed locally into twelve mentions and reduced to fifteen candidate pairs. Jev labels only those pairs. A deterministic evidence gate yields four proposed edges, eleven rejected pairs, and a candidate graph with four correct edges in the pinned smoke fixture.</desc>
+        <title id="architecture-title">Generic LLM knowledge graph pipeline compared with JevGraph</title>
+        <desc id="architecture-desc">A generic pipeline asks one large language model to extract entities, consider relation pairs, and generate graph triples. JevGraph instead parses locally, blocks candidate pairs, asks Jev only to choose a relation, and applies an evidence gate before producing a candidate graph.</desc>
         <defs>
           <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#69717c"/></marker>
           <marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0e6675"/></marker>
         </defs>
 
-        <rect class="arch-zone" x="0" y="34" width="655" height="405"/>
-        <rect class="arch-zone-model" x="675" y="34" width="225" height="405"/>
-        <rect class="arch-zone" x="920" y="34" width="480" height="405"/>
-        <text class="arch-zone-label" x="24" y="64">LOCAL · DETERMINISTIC</text>
-        <text class="arch-zone-label" x="699" y="64">MODEL · ONE BOUNDED CHOICE</text>
-        <text class="arch-zone-label" x="944" y="64">EVIDENCE GATE → CANDIDATE GRAPH</text>
+        <rect class="arch-zone" x="0" y="18" width="1400" height="190"/>
+        <text class="arch-zone-label" x="24" y="48">GENERIC LLM KNOWLEDGE GRAPH PIPELINE</text>
+        <text class="arch-meta" x="1124" y="48">ALL POSSIBLE PAIRS · O(n²)</text>
+        <path class="arch-arrow" d="M 270 125 H 345"/><path class="arch-arrow" d="M 650 125 H 725"/><path class="arch-arrow" d="M 1030 125 H 1105"/>
+        <rect class="arch-node" x="24" y="70" width="246" height="110"/><text class="arch-title" x="50" y="116">Documents</text><text class="arch-meta" x="50" y="148">PDF · DOCX · PPTX · text</text>
+        <rect class="arch-node" x="345" y="70" width="305" height="110"/><text class="arch-title" x="371" y="110">LLM extracts entities</text><text class="arch-title" x="371" y="140">+ relation triples</text>
+        <rect class="arch-node" x="725" y="70" width="305" height="110"/><text class="arch-title" x="751" y="110">Validate + deduplicate</text><text class="arch-meta" x="751" y="148">schema · confidence · conflicts</text>
+        <rect class="arch-node" x="1105" y="70" width="271" height="110"/><circle class="graph-node-core" cx="1160" cy="125" r="25"/><circle class="graph-node" cx="1260" cy="98" r="22"/><circle class="graph-node" cx="1290" cy="153" r="22"/><line class="graph-edge" x1="1185" y1="118" x2="1238" y2="103"/><line class="graph-edge" x1="1183" y1="136" x2="1268" y2="150"/><text class="arch-title" x="1322" y="132" text-anchor="middle">Graph</text>
 
-        <path class="arch-arrow" d="M 190 237 H 238"/>
-        <path class="arch-arrow" d="M 420 237 H 468"/>
-        <path class="arch-arrow-accent" d="M 642 237 H 700"/>
-        <path class="arch-arrow-accent" d="M 874 237 H 938"/>
-        <path class="arch-arrow" d="M 1088 237 H 1122"/>
-
-        <rect class="arch-node" x="24" y="142" width="166" height="190"/>
-        <text class="arch-title" x="48" y="184">Documents</text>
-        <rect x="48" y="210" width="34" height="44" fill="#edf6f6" stroke="#0e6675"/>
-        <rect x="70" y="226" width="34" height="44" fill="#fff" stroke="#171a20"/>
-        <text class="arch-meta" x="48" y="296">PDF · DOCX</text>
-        <text class="arch-meta" x="48" y="316">PPTX · text</text>
-
-        <rect class="arch-node" x="238" y="142" width="182" height="190"/>
-        <text class="arch-title" x="262" y="184">Canonical</text>
-        <text class="arch-title" x="262" y="210">pages</text>
-        <line x1="262" y1="237" x2="380" y2="237" stroke="#d6dbd8"/>
-        <text class="arch-meta" x="262" y="266">DocJev + LiteParse</text>
-        <text class="arch-meta" x="262" y="292">hashes · offsets</text>
-
-        <rect class="arch-node" x="468" y="142" width="174" height="190"/>
-        <text class="arch-count" x="492" y="207">12</text>
-        <text class="arch-title" x="492" y="242">mentions</text>
-        <line x1="492" y1="262" x2="618" y2="262" stroke="#d6dbd8"/>
-        <text class="arch-meta" x="492" y="289">sentence · types</text>
-        <text class="arch-meta" x="492" y="313">neighbor cap</text>
-        <text class="arch-zone-label" x="505" y="369">BLOCK</text>
-        <text class="arch-count" x="500" y="415">15</text>
-        <text class="arch-meta" x="574" y="408">pairs</text>
-
-        <rect class="arch-node-accent" x="700" y="142" width="174" height="190"/>
-        <text class="arch-zone-label" x="724" y="178" fill="#ffffff">JEV</text>
-        <text class="arch-title-light" x="724" y="218">Choose one</text>
-        <text class="arch-title-light" x="724" y="246">relation</text>
-        <line x1="724" y1="270" x2="850" y2="270" stroke="rgba(255,255,255,.45)"/>
-        <text class="arch-meta-light" x="724" y="298">per retained pair</text>
-
-        <rect class="arch-node-soft" x="938" y="142" width="150" height="190"/>
-        <text class="arch-count" x="962" y="207">4</text>
-        <text class="arch-title" x="962" y="241">proposed</text>
-        <text class="arch-meta" x="962" y="277">11 rejected</text>
-        <text class="arch-meta" x="962" y="303">0 review</text>
-
-        <line class="graph-edge" x1="1250" y1="237" x2="1170" y2="150"/>
-        <line class="graph-edge" x1="1250" y1="237" x2="1330" y2="150"/>
-        <line class="graph-edge" x1="1250" y1="237" x2="1170" y2="325"/>
-        <line class="graph-edge" x1="1250" y1="237" x2="1330" y2="325"/>
-        <text class="graph-edge-label" x="1168" y="190">founded</text>
-        <text class="graph-edge-label" x="1280" y="190">released</text>
-        <text class="graph-edge-label" x="1155" y="287">acquired</text>
-        <text class="graph-edge-label" x="1270" y="287">partnered with</text>
-        <circle class="graph-node-core" cx="1250" cy="237" r="62"/>
-        <text class="graph-name-core" x="1250" y="233" text-anchor="middle">Northstar</text>
-        <text class="graph-name-core" x="1250" y="253" text-anchor="middle">Labs</text>
-        <circle class="graph-node" cx="1170" cy="128" r="43"/>
-        <text class="graph-name" x="1170" y="133" text-anchor="middle">Mira Chen</text>
-        <circle class="graph-node" cx="1330" cy="128" r="43"/>
-        <text class="graph-name" x="1330" y="133" text-anchor="middle">Orbit DB</text>
-        <circle class="graph-node" cx="1170" cy="347" r="43"/>
-        <text class="graph-name" x="1170" y="352" text-anchor="middle">Atlas</text>
-        <circle class="graph-node" cx="1330" cy="347" r="43"/>
-        <text class="graph-name" x="1330" y="342" text-anchor="middle">Vector</text>
-        <text class="graph-name" x="1330" y="360" text-anchor="middle">Works</text>
-
-        <line class="arch-divider" x1="0" y1="466" x2="1400" y2="466"/>
-        <text class="arch-caption" x="0" y="497">Local blocking removes the quadratic search.</text>
-        <text class="arch-caption" x="540" y="497">Jev labels candidates—not graph truth.</text>
-        <text class="arch-caption" x="1060" y="497">Pinned smoke fixture · 4 / 4 correct</text>
+        <rect class="arch-zone-model" x="0" y="228" width="1400" height="242"/>
+        <text class="arch-zone-label" x="24" y="258">JEVGRAPH · REDUCE FIRST, THEN ASK ONE BOUNDED QUESTION</text>
+        <text class="arch-meta" x="1160" y="258">O(n²) → O(nk)</text>
+        <path class="arch-arrow" d="M 240 362 H 280"/><path class="arch-arrow" d="M 500 362 H 540"/><path class="arch-arrow-accent" d="M 760 362 H 800"/><path class="arch-arrow-accent" d="M 1020 362 H 1060"/>
+        <rect class="arch-node" x="24" y="292" width="216" height="140"/><text class="arch-title" x="50" y="334">Parse locally</text><text class="arch-meta" x="50" y="368">canonical pages</text><text class="arch-meta" x="50" y="394">12 mentions</text>
+        <rect class="arch-node" x="280" y="292" width="220" height="140"/><text class="arch-title" x="306" y="334">Block pairs</text><text class="arch-meta" x="306" y="368">types + neighbors</text><text class="arch-count" x="306" y="414">15</text><text class="arch-meta" x="374" y="405">candidates</text>
+        <rect class="arch-node-accent" x="540" y="292" width="220" height="140"/><text class="arch-zone-label" x="566" y="325" fill="#ffffff">JEV</text><text class="arch-title-light" x="566" y="365">Choose one</text><text class="arch-title-light" x="566" y="395">relation</text>
+        <rect class="arch-node-soft" x="800" y="292" width="220" height="140"/><text class="arch-title" x="826" y="334">Evidence gate</text><text class="arch-count" x="826" y="394">4</text><text class="arch-meta" x="886" y="386">proposed</text><text class="arch-meta" x="826" y="417">11 rejected · 0 review</text>
+        <rect class="arch-node" x="1060" y="278" width="316" height="168"/>
+        <line class="graph-edge" x1="1190" y1="362" x2="1118" y2="315"/><line class="graph-edge" x1="1190" y1="362" x2="1118" y2="413"/><line class="graph-edge" x1="1190" y1="362" x2="1300" y2="362"/>
+        <text class="graph-edge-label" x="1128" y="336">founded</text><text class="graph-edge-label" x="1125" y="397">acquired</text><text class="graph-edge-label" x="1230" y="350">released</text>
+        <circle class="graph-node-core" cx="1190" cy="362" r="42"/><text class="graph-name-core" x="1190" y="357" text-anchor="middle">Northstar</text><text class="graph-name-core" x="1190" y="375" text-anchor="middle">Labs</text>
+        <circle class="graph-node" cx="1105" cy="307" r="30"/><text class="graph-name" x="1105" y="312" text-anchor="middle">Founder</text>
+        <circle class="graph-node" cx="1105" cy="420" r="30"/><text class="graph-name" x="1105" y="425" text-anchor="middle">Company</text>
+        <circle class="graph-node" cx="1320" cy="362" r="30"/><text class="graph-name" x="1320" y="367" text-anchor="middle">Product</text>
+        <text class="arch-caption" x="1376" y="468" text-anchor="end">candidate graph · 4 / 4 correct · pinned fixture</text>
       </svg>
       <footer class="page-footer"><span>Output: JSON · CSV · Neo4j Cypher · page-local evidence spans</span><span>Candidate decisions are not graph truth or Human Approval.</span></footer>
     </section>

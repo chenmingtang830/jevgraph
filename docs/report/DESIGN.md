@@ -105,9 +105,10 @@ Warm-paper panels use a 1px rule, 17–21px internal padding, large task titles,
 
 ### Architecture diagram
 
-The first page uses three semantic bands—local, model, and evidence/graph—with orthogonal arrows.
-Teal marks the bounded Jev decision and accepted graph edges; all other processing stays neutral.
-The pinned `12 → 15 → 4` counts are embedded in the flow rather than repeated as prose.
+The first page uses two stacked flows. A neutral high-level generic LLM knowledge-graph pipeline
+establishes the familiar document-to-triples pattern; the teal JevGraph flow below shows the local
+blocking alternative. Teal marks the bounded Jev decision and accepted graph edges. The pinned
+`12 → 15 → 4` counts are embedded in the lower flow rather than repeated as prose.
 
 ### Horizontal bars
 
