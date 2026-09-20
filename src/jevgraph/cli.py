@@ -36,7 +36,7 @@ def parser() -> argparse.ArgumentParser:
         prog="jevgraph",
         description="Build evidence-backed candidate knowledge graphs with typed decisions.",
     )
-    root.add_argument("--version", action="version", version="jevgraph 0.4.1")
+    root.add_argument("--version", action="version", version="jevgraph 0.4.2")
     commands = root.add_subparsers(dest="command", required=True)
 
     build = commands.add_parser("build", help="Build a candidate graph from one text document.")

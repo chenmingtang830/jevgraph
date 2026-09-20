@@ -14,7 +14,7 @@ It is designed for fixed or slowly changing ontologies where edge precision, sou
 reproducibility matter. It does **not** claim that model output is true, approved, or safe for
 consequential reuse.
 
-## v0.4.1 controlled direct relation-selection benchmark
+## v0.4.2 controlled direct relation-selection benchmark
 
 The current primary benchmark measures exactly one operation: relation identification for an
 already supplied candidate pair. Every model receives the same single case and must return one of
@@ -43,6 +43,7 @@ the gold relation) stays local to scoring. On pinned `train_wiki` (16 relations 
 | Input / output tokens | 156,228 / 29,404 | 82,418 / 2,592 | 83,739 / 2,270 |
 | Provider-reported cost | $0 | $0.019594 | $0.023389532 |
 | Jev illustrative input-price equivalent | $0.006561576 | — | — |
+| Cost / planned decision | $0.000041010 illustrative | $0.000122463 receipt | $0.000146185 receipt |
 
 The result is a narrow public-sample measurement, not a general model ranking or an end-to-end KG
 score. It does not measure entity extraction, candidate generation, negative rejection, graph
