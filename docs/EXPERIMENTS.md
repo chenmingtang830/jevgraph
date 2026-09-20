@@ -1,6 +1,6 @@
 # Experiment protocol
 
-## Primary track: v0.4 direct relation selection
+## Primary track: v0.4.1 controlled direct relation selection
 
 This protocol measures only relation identification for an already supplied directed candidate pair:
 
@@ -27,11 +27,13 @@ positive-only; it does not assess negative rejection.
 | Retries / fallback | 0 / 0 |
 | Timeout | 55 seconds |
 | Chat completion limit | 4,096 tokens |
+| Chat reasoning effort | explicit `none` |
 | Score | correct predictions divided by all 160 planned cases |
 
-The no-call preflight estimates ceilings independently from request bytes plus configured output
-limits. For this run: Jev `$0.016012668`, Luna `$0.8701342`, DeepSeek `$0.9124173`; combined
-`$1.798564168`, below the project `$5` absolute cap. These are safeguards, not provider quotes.
+The controlled chat rerun no-call ceiling was Luna `$0.8710942` plus DeepSeek `$0.9138573`.
+Together with the first v0.4 run's conservative `$1.798564168` ceiling, the conservative combined
+upper bound was `$3.583515668`, below the project `$5` absolute cap. These are safeguards, not
+provider quotes.
 
 No case is retried. A failed receipt is always persisted. With
 `--continue-after-known-failure`, a known-cost failure is skipped and the next case starts. An
@@ -61,9 +63,10 @@ labeled support examples and five query decisions per request.
 
 - **Synthetic end to end:** repository-owned text, gazetteer entities, local candidate generation,
   keyword baseline, and optional Jev decisions.
-- **FewRel direct closed set (v0.4):** the primary track above: supplied entity pair, one opaque
-  case per request, 16 relations-only choices, temperature zero, and 4,096 chat output tokens.
-- **Chat-model comparison (v0.4):** the exact same FewRel sample, relation criteria, and opaque
+- **FewRel direct closed set (v0.4.1):** the primary track above: supplied entity pair, one opaque
+  case per request, 16 relations-only choices, temperature zero, 4,096 chat output tokens, and
+  explicit `reasoning.effort=none` for chat models.
+- **Chat-model comparison (v0.4.1):** the exact same FewRel sample, relation criteria, and opaque
   case ordering through Vercel AI Gateway to `openai/gpt-5.6-luna` and
   `deepseek/deepseek-v4.1-flash`. Chat models return only selected IDs; no self-reported
   probability is requested or compared with Jev probabilities.

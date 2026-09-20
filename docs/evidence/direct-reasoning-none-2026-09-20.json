@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-20",
+  "release": "v0.4.1",
+  "supersedes_for_primary_comparison": "v0.4.0 chat results with provider-default reasoning",
+  "task_mode": "direct_closed_set_relation_only",
+  "fewrel": {
+    "split": "train_wiki",
+    "source_revision": "278a2315d2138810a379cd8d5718914dc56e2582",
+    "seed": 17,
+    "relations": 16,
+    "cases_per_relation": 10,
+    "planned_cases": 160,
+    "positive_only": true
+  },
+  "shared_request_configuration": {
+    "choice_set": "relations-only",
+    "batch_size": 1,
+    "temperature": 0,
+    "execution": "sequential",
+    "retries": 0,
+    "fallbacks": 0,
+    "timeout_seconds": 55,
+    "provider_case_ids": "opaque case_00000-style IDs",
+    "chat_max_output_tokens": 4096,
+    "chat_reasoning_effort": "none"
+  },
+  "models": {
+    "typesafe-ai/jev": {
+      "reused_v0_4_0_receipts": true,
+      "planned_case_accuracy": 0.875,
+      "coverage": 0.99375,
+      "successful_requests": 159,
+      "attempted_requests": 160,
+      "request_latency_p50_ms": 313,
+      "request_latency_p95_ms": 431,
+      "sequential_request_time_ms": 51969,
+      "input_tokens": 156228,
+      "output_tokens": 29404,
+      "provider_reported_cost_usd": 0.0,
+      "illustrative_input_list_price_equivalent_usd": 0.006561576,
+      "unknown_cost_requests": 1,
+      "sanitized_raw_sha256": "7cc95149a388b86bb08bd750d01a4c6ccd87ed2d20a483e595019bd74f7bb557"
+    },
+    "openai/gpt-5.6-luna": {
+      "reasoning_effort": "none",
+      "planned_case_accuracy": 0.89375,
+      "coverage": 1.0,
+      "successful_requests": 160,
+      "attempted_requests": 160,
+      "request_latency_p50_ms": 1164,
+      "request_latency_p95_ms": 1699,
+      "sequential_request_time_ms": 195616,
+      "input_tokens": 82418,
+      "output_tokens": 2592,
+      "provider_reported_cost_usd": 0.019594,
+      "unknown_cost_requests": 0,
+      "sanitized_raw_sha256": "6b105193f5303fe8f32dfd95dc41c9dd5c4dfae317b980de6a1a778028619749"
+    },
+    "deepseek/deepseek-v4.1-flash": {
+      "reasoning_effort": "none",
+      "planned_case_accuracy": 0.93125,
+      "coverage": 0.99375,
+      "successful_requests": 159,
+      "attempted_requests": 160,
+      "request_latency_p50_ms": 691,
+      "request_latency_p95_ms": 1242,
+      "sequential_request_time_ms": 120437,
+      "input_tokens": 83739,
+      "output_tokens": 2270,
+      "provider_reported_cost_usd": 0.023389532,
+      "unknown_cost_requests": 0,
+      "failure_modes": ["One known-cost prediction_outside_criteria receipt; the case was not retried."],
+      "sanitized_raw_sha256": "31ac43744097f040a49d32e22c6549cfb1630178bea3b793896142b46e817165"
+    }
+  },
+  "comparison_note": "Luna and DeepSeek were rerun with explicit reasoning.effort=none. Jev's native typed Choice protocol has no equivalent chat reasoning-effort field, so its unchanged v0.4.0 direct receipts are reused.",
+  "cost_audit": {
+    "controlled_chat_rerun_known_provider_cost_usd": 0.042983532,
+    "all_v0_4_known_provider_cost_usd": 0.177021484,
+    "unknown_cost_requests": 1,
+    "conservative_first_run_ceiling_usd": 1.798564168,
+    "conservative_controlled_chat_rerun_ceiling_usd": 1.7849515,
+    "combined_conservative_ceiling_usd": 3.583515668,
+    "project_absolute_cap_usd": 5.0
+  },
+  "limitations": [
+    "The supplied pair makes this relation identification, not end-to-end graph construction.",
+    "Jev does not expose an equivalent chat reasoning-effort control in this protocol.",
+    "Gateway usage does not expose a separate reasoning-token count, so output usage cannot be decomposed further.",
+    "Provider choices are candidate decisions, not graph truth, calibration evidence, or human approval."
+  ]
+}

@@ -45,13 +45,18 @@ def test_fewrel_sampling_and_plan_are_deterministic(tmp_path: Path) -> None:
 
     assert first == second
     plan = benchmark_plan(
-        first, batch_size=3, choice_set="relations-only", chat_max_output_tokens=4096
+        first,
+        batch_size=3,
+        choice_set="relations-only",
+        chat_max_output_tokens=4096,
+        chat_reasoning_effort="none",
     )
     assert plan["cases"] == 4
     assert plan["requests"] == 2
     assert plan["illustrative_input_cost_usd"] > 0
     assert plan["choice_set"] == "relations-only"
     assert plan["chat_max_output_tokens"] == 4096
+    assert plan["chat_reasoning_effort"] == "none"
 
 
 def test_lexical_baseline_reports_complete_coverage(tmp_path: Path) -> None:
