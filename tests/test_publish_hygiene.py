@@ -15,6 +15,8 @@ def test_publication_metadata_and_assets_stay_in_sync() -> None:
     assert f'version = "{citation["version"]}"' in pyproject
     assert "docs/assets/jevgraph-overview.svg" in readme
     assert (ROOT / "docs/assets/jevgraph-overview.svg").is_file()
+    assert (ROOT / "docs/assets/social/jevgraph-x-launch.svg").is_file()
+    assert (ROOT / "docs/assets/social/jevgraph-x-launch.png").is_file()
     assert "LlamaIndex" in acknowledgements
     assert "https://github.com/jerryjliu/docjev" in acknowledgements
     assert "sha256sum dist/*" in release_workflow
