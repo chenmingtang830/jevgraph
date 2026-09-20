@@ -6,8 +6,8 @@ separate printable benchmark brief.
 
 The three HTML pages answer three different questions:
 
-- **What is JevGraph?** The complete document-to-candidate-graph pipeline, its `O(nk)` blocking
-  mechanism, and the pinned configured E2E smoke result.
+- **What is JevGraph?** One architecture diagram shows the complete document-to-candidate-graph
+  pipeline, its local `O(nk)` blocking boundary, the bounded Jev decision, and the pinned smoke graph.
 - **What does DocJev show?** Its separately published 40-document / eight-packet classification and
   split pilot, with latency, cost, and the one split-quality tradeoff shown together.
 - **What did JevGraph measure?** The controlled 160-case direct relation-selection comparison across

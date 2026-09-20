@@ -35,6 +35,12 @@ def test_visual_report_is_self_contained_and_uses_cents_per_100(tmp_path: Path) 
     assert "1208.8" in rendered
     assert "1862.7" in rendered
     assert "company-events-v1" in rendered
+    assert 'id="graph-architecture"' in rendered
+    assert "JEV" in rendered
+    assert "Northstar" in rendered
+    assert "Mira Chen" in rendered
+    assert "O(nk)" in rendered
+    assert 'class="pipeline"' not in rendered
     assert rendered.count('class="page"') == 3
     assert "<link rel=\"stylesheet\"" not in rendered
     assert "<script src=" not in rendered

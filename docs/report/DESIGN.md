@@ -82,8 +82,10 @@ source metadata.
 
 Each `.page` fills one viewport with a minimum height of 720px and uses a 42px × 28px desktop inset.
 At 1000px and below, the inset contracts to 28px × 22px while all three pages remain one-screen
-compositions. Page one uses a three-stage process band; pages two and three use two- and three-column
-chart grids. The fixed numbered rail provides direct and keyboard-assisted page movement.
+compositions. Page one is a left-to-right architecture diagram: local document processing and
+candidate blocking, one bounded model choice, a deterministic evidence gate, and the resulting
+candidate graph. Pages two and three use two- and three-column chart grids. The fixed numbered rail
+provides direct and keyboard-assisted page movement.
 
 ## Elevation & Depth
 
@@ -100,6 +102,12 @@ JevGraph mark. Bars begin at a visible 1px zero axis.
 ### Evidence panels
 
 Warm-paper panels use a 1px rule, 17–21px internal padding, large task titles, and aligned bar groups.
+
+### Architecture diagram
+
+The first page uses three semantic bands—local, model, and evidence/graph—with orthogonal arrows.
+Teal marks the bounded Jev decision and accepted graph edges; all other processing stays neutral.
+The pinned `12 → 15 → 4` counts are embedded in the flow rather than repeated as prose.
 
 ### Horizontal bars
 
