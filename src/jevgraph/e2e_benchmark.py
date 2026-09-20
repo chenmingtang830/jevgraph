@@ -14,6 +14,7 @@ from .ingest import load_document
 from .models import BuildResult
 from .ontology import Ontology
 from .providers.base import RelationProvider
+from .providers.gateway import PRICE_PER_MILLION_INPUT_TOKENS, GatewayJevClient
 
 
 def run_e2e_benchmark(
@@ -56,6 +57,31 @@ def run_e2e_benchmark(
     metrics = _score(build, ontology, gold)
     receipts = [asdict(receipt) for receipt in build.receipts]
     known_costs = [receipt.cost_usd for receipt in build.receipts if receipt.cost_usd is not None]
+    provider_reported_cost = sum(
+        receipt.cost_usd
+        for receipt in build.receipts
+        if receipt.cost_usd is not None and receipt.cost_basis == "provider"
+    )
+    list_price_estimated_cost = sum(
+        receipt.cost_usd
+        for receipt in build.receipts
+        if receipt.cost_usd is not None and receipt.cost_basis == "list-price-estimate"
+    )
+    total_input_tokens = sum(
+        receipt.input_tokens
+        for receipt in build.receipts
+        if receipt.input_tokens is not None
+    )
+    all_costs_known = len(known_costs) == len(build.receipts)
+    known_cost = sum(known_costs)
+    candidates = metrics["candidates"]
+    proposed = metrics["edge_status"]["proposed"]
+    correct = metrics["true_positive_edges"]
+    illustrative_jev_cost = (
+        total_input_tokens * PRICE_PER_MILLION_INPUT_TOKENS / 1_000_000
+        if provider.model == GatewayJevClient.model
+        else None
+    )
     request_latencies = sorted(receipt.latency_ms for receipt in build.receipts)
     return {
         "schema_version": 1,
@@ -84,7 +110,24 @@ def run_e2e_benchmark(
             "pipeline_latency_ms": pipeline_latency_ms,
             "request_latency_p50_ms": _percentile(request_latencies, 0.50),
             "request_latency_p95_ms": _percentile(request_latencies, 0.95),
-            "known_cost_usd": sum(known_costs),
+            "provider_reported_cost_usd": provider_reported_cost,
+            "list_price_estimated_cost_usd": list_price_estimated_cost,
+            "known_cost_usd": known_cost,
+            "known_cost_per_candidate_usd": (
+                known_cost / candidates if all_costs_known and candidates else None
+            ),
+            "known_cost_per_proposed_edge_usd": (
+                known_cost / proposed if all_costs_known and proposed else None
+            ),
+            "known_cost_per_correct_edge_usd": (
+                known_cost / correct if all_costs_known and correct else None
+            ),
+            "illustrative_jev_list_price_equivalent_usd": illustrative_jev_cost,
+            "illustrative_jev_list_price_equivalent_per_candidate_usd": (
+                illustrative_jev_cost / candidates
+                if illustrative_jev_cost is not None and candidates
+                else None
+            ),
             "unknown_cost_requests": len(build.receipts) - len(known_costs),
         },
         "receipts": receipts,

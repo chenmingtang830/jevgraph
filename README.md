@@ -150,7 +150,9 @@ negative-edge rejection, or end-to-end graph quality.
 
 The repository also includes a deliberately small document-to-candidate-graph regression track.
 Its manifest pins the canonical text, ontology, and entity catalog by SHA-256, then scores candidate
-recall and proposed-edge precision/recall/F1 against four repository-owned gold edges:
+recall and proposed-edge precision/recall/F1 against four repository-owned gold edges. Cost is
+reported separately as provider receipts, list-price estimates, and derived cost per candidate,
+proposed edge, and correct edge:
 
 ```bash
 uv run jevgraph benchmark-e2e \
