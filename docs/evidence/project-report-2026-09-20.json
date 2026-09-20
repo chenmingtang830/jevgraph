@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-20",
+  "e2e_smoke": {
+    "name": "company-events-v1",
+    "scope": "configured_e2e_from_canonical_text",
+    "provider": "local keyword-baseline-v1",
+    "mentions": 12,
+    "candidates": 15,
+    "proposed": 4,
+    "rejected": 11,
+    "review": 0,
+    "gold_edges": 4,
+    "true_positive_edges": 4,
+    "false_positive_edges": 0,
+    "false_negative_edges": 0,
+    "candidate_recall": 1.0,
+    "edge_precision": 1.0,
+    "edge_recall": 1.0,
+    "edge_f1": 1.0,
+    "character_span_integrity": 1.0,
+    "provider_reported_cost_usd": 0.0,
+    "claim_boundary": "Repository-owned smoke/regression fixture; not external evidence of general KG quality."
+  },
+  "docjev": {
+    "run": "real-small-v1-run01",
+    "recorded_at": "2026-09-19T17:58:58.512745+00:00",
+    "source_revision": "9ed0fe05984ce1906af9272b8b400c8d46520f98",
+    "source_url": "https://github.com/jerryjliu/docjev/blob/9ed0fe05984ce1906af9272b8b400c8d46520f98/benchmarks/results/real-small-v1-run01/report.md",
+    "scope": "Curated convenience sample of 40 short English public-sector PDFs; eight constructed split packets; single pass; agent-assisted labels without human review.",
+    "classify": {
+      "jev": {"quality": 1.0, "completed": 40, "planned": 40, "p50_ms": 138.6, "p95_ms": 184.5, "cost_usd": 0.005028},
+      "luna": {"quality": 1.0, "completed": 40, "planned": 40, "p50_ms": 794.3, "p95_ms": 1208.8, "cost_usd": 0.024406}
+    },
+    "split": {
+      "jev": {"quality": 0.875, "completed": 8, "planned": 8, "p50_ms": 209.6, "p95_ms": 290.0, "cost_usd": 0.006635},
+      "luna": {"quality": 1.0, "completed": 8, "planned": 8, "p50_ms": 1352.3, "p95_ms": 1862.7, "cost_usd": 0.022488}
+    }
+  }
+}

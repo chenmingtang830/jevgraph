@@ -3,137 +3,313 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="JevGraph direct relation-selection benchmark report.">
-  <title>JevGraph — Direct Relation Selection</title>
+  <meta name="description" content="JevGraph: a three-page field report covering the end-to-end graph pipeline, DocJev document benchmark, and direct relation-selection benchmark.">
+  <title>JevGraph — Project & benchmark field report</title>
   <style>
     :root {
-      --paper: #fff;
-      --warm: #f8f7f3;
-      --ink: #181a20;
-      --ink-2: #555b66;
-      --ink-3: #686f78;
-      --line: #d7dcd9;
+      --paper: #ffffff;
+      --warm: #f7f6f2;
+      --ink: #171a20;
+      --ink-2: #4f5662;
+      --ink-3: #69717c;
+      --line: #d6dbd8;
+      --track: #e2e5e3;
       --accent: #0e6675;
-      --accent-soft: #eff7f7;
-      --font-ui: "DM Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --font-proof: "IBM Plex Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+      --accent-2: #2e8fa3;
+      --accent-soft: #edf6f6;
+      --font-ui: "DM Sans", "Avenir Next", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-proof: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
     }
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { min-width: 980px; margin: 0; color: var(--ink); background: #ececea; font-family: var(--font-ui); font-synthesis: none; }
+    html { scroll-snap-type: y mandatory; }
+    body { min-width: 0; margin: 0; color: var(--ink); background: #e9e9e6; font-family: var(--font-ui); font-synthesis: none; }
+    ::selection { color: var(--paper); background: var(--accent); }
     a { color: inherit; text-underline-offset: .22em; }
-    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+    a:hover { color: var(--accent); }
+    button { font: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
     h1, h2, h3, p, figure { margin-top: 0; }
     code { font-family: var(--font-proof); font-size: .88em; }
-    .report { width: min(1440px, 100%); margin: 0 auto; background: var(--paper); border-inline: 1px solid var(--line); }
-    .page { min-height: 900px; padding: 46px 58px 52px; }
-    .page + .page { border-top: 8px solid #ececea; }
-    .topline { display: flex; align-items: center; justify-content: space-between; gap: 30px; padding-bottom: 22px; border-bottom: 1px solid var(--ink); }
-    .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 650; }
-    .brand-mark { width: 25px; height: 25px; position: relative; border: 2px solid var(--ink); }
-    .brand-mark::after { content: ""; width: 9px; height: 9px; position: absolute; right: -5px; bottom: -5px; border-radius: 50%; background: #2e8fa3; }
-    .meta { color: var(--ink-3); font: 500 11px/1.4 var(--font-proof); letter-spacing: .05em; }
-    .hero { display: grid; grid-template-columns: 1.2fr .8fr; gap: 72px; align-items: end; padding: 52px 0 42px; }
-    .hero h1 { max-width: 870px; margin-bottom: 18px; font-size: clamp(3.5rem, 5.6vw, 5.7rem); font-weight: 600; line-height: .96; letter-spacing: -.045em; }
-    .hero h1 span { color: var(--accent); }
-    .hero p { max-width: 720px; margin: 0; color: var(--ink-2); font-size: 17px; line-height: 1.55; }
-    .headline-metrics { border-top: 1px solid var(--ink); }
-    .headline-metrics div { display: grid; grid-template-columns: 145px 1fr; gap: 16px; align-items: baseline; padding: 18px 0; border-bottom: 1px solid var(--line); }
-    .headline-metrics strong { color: var(--accent); font-size: 34px; font-weight: 550; letter-spacing: -.035em; font-variant-numeric: tabular-nums; }
-    .headline-metrics span { color: var(--ink-2); font-size: 13px; line-height: 1.45; }
+    .report { width: min(1480px, 100%); margin: 0 auto; background: var(--paper); border-inline: 1px solid var(--line); }
+    .page { position: relative; min-height: 720px; height: 100svh; padding: 28px 42px 24px; scroll-snap-align: start; overflow: hidden; }
+    .page + .page { border-top: 8px solid #e9e9e6; }
+    .topline { display: flex; align-items: center; justify-content: space-between; gap: 30px; padding-bottom: 13px; border-bottom: 1px solid var(--ink); }
+    .brand { display: inline-flex; align-items: center; gap: 11px; font-size: 18px; font-weight: 700; letter-spacing: -.015em; }
+    .brand-mark { width: 27px; height: 27px; position: relative; border: 2px solid var(--ink); }
+    .brand-mark::after { content: ""; width: 9px; height: 9px; position: absolute; right: -5px; bottom: -5px; border-radius: 50%; background: var(--accent-2); }
+    .meta { color: var(--ink-3); font: 600 11px/1.4 var(--font-proof); letter-spacing: .06em; text-transform: uppercase; }
+    .page-heading { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(270px, .7fr); gap: 48px; align-items: end; padding: 28px 0 23px; }
+    .page-heading h1, .page-heading h2 { max-width: 960px; margin: 0; font-size: clamp(3.6rem, 5.4vw, 5.4rem); font-weight: 600; line-height: .95; letter-spacing: -.04em; text-wrap: balance; }
+    .page-heading h1 span, .page-heading h2 span { color: var(--accent); }
+    .page-heading p { max-width: 600px; margin: 0; color: var(--ink-2); font-size: 18px; line-height: 1.45; }
+    .page-footer { display: flex; justify-content: space-between; gap: 30px; margin-top: 18px; padding-top: 11px; border-top: 1px solid var(--ink); color: var(--ink-3); font: 500 10px/1.4 var(--font-proof); }
+    .page-footer a { color: var(--accent); }
+
+    .thesis { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 32px; align-items: stretch; }
+    .complexity { display: grid; align-content: center; padding: 20px; color: var(--accent); background: var(--accent-soft); border-top: 1px solid var(--accent); }
+    .complexity del { color: var(--ink-3); font: 500 30px/1 var(--font-proof); text-decoration-thickness: 1px; }
+    .complexity strong { display: block; margin-top: 10px; font: 600 58px/1 var(--font-proof); letter-spacing: -.04em; }
+    .complexity span { margin-top: 10px; color: var(--ink-2); font-size: 13px; line-height: 1.4; }
+    .pipeline { display: grid; grid-template-columns: repeat(3, 1fr); border-block: 1px solid var(--ink); }
+    .stage { position: relative; min-height: 156px; padding: 17px 25px 15px; }
+    .stage + .stage { border-left: 1px solid var(--line); }
+    .stage + .stage::before { content: ""; position: absolute; left: -5px; top: 67px; width: 9px; height: 9px; border-top: 1px solid var(--accent); border-right: 1px solid var(--accent); transform: rotate(45deg); background: var(--paper); }
+    .stage b { color: var(--accent); font: 600 10px/1 var(--font-proof); letter-spacing: .07em; }
+    .stage h3 { margin: 26px 0 7px; font-size: 23px; letter-spacing: -.025em; }
+    .stage p { margin: 0; color: var(--ink-2); font-size: 14px; line-height: 1.4; }
+    .fixture { display: grid; grid-template-columns: .95fr 1.05fr; gap: 30px; margin-top: 20px; }
+    .fixture-copy { padding-top: 14px; border-top: 1px solid var(--ink); }
+    .fixture-copy h3 { margin-bottom: 7px; font-size: 22px; }
+    .fixture-copy p { max-width: 650px; margin: 0; color: var(--ink-2); font-size: 13px; line-height: 1.45; }
+    .funnel { display: grid; grid-template-columns: repeat(4, 1fr); border-block: 1px solid var(--ink); }
+    .funnel div { min-width: 0; padding: 14px 14px; }
+    .funnel div + div { border-left: 1px solid var(--line); }
+    .funnel strong { display: block; color: var(--accent); font: 600 38px/1 var(--font-proof); }
+    .funnel span { display: block; margin-top: 10px; color: var(--ink-2); font-size: 12px; }
+
+    .docjev-intro { margin-bottom: 16px; }
+    .source-note { padding: 11px 15px; color: var(--ink-2); background: var(--warm); border-top: 1px solid var(--ink); font-size: 13px; line-height: 1.45; }
+    .source-note strong { color: var(--ink); }
+    .docjev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .task-panel { padding: 17px 20px 15px; background: var(--warm); border: 1px solid var(--line); }
+    .task-panel header { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; padding-bottom: 13px; border-bottom: 1px solid var(--ink); }
+    .task-panel h3 { margin: 0; font-size: 24px; }
+    .task-panel header span { color: var(--ink-3); font: 500 10px/1.4 var(--font-proof); }
+    .metric-group { padding-top: 12px; }
+    .metric-title { display: flex; justify-content: space-between; gap: 18px; margin-bottom: 7px; color: var(--ink-3); font: 600 10px/1.2 var(--font-proof); letter-spacing: .05em; text-transform: uppercase; }
+    .compare-row { display: grid; grid-template-columns: 105px minmax(0, 1fr) 92px; gap: 11px; align-items: center; min-height: 27px; }
+    .compare-row + .compare-row { margin-top: 5px; }
+    .compare-row b { font-size: 13px; }
+    .compare-row output { color: var(--ink-2); font: 600 11px/1 var(--font-proof); text-align: right; font-variant-numeric: tabular-nums; }
+    .bar-track { height: 12px; border-left: 1px solid var(--ink-3); background: var(--track); overflow: hidden; }
+    .bar-fill { width: calc(var(--scale) * 100%); height: 100%; background: #7b828b; }
+    .compare-row.jev .bar-fill { background: var(--accent); }
+    .docjev-takeaways { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 14px; border-block: 1px solid var(--ink); }
+    .docjev-takeaways div { padding: 14px 16px; }
+    .docjev-takeaways div + div { border-left: 1px solid var(--line); }
+    .docjev-takeaways span { display: block; color: var(--accent); font: 600 10px/1 var(--font-proof); }
+    .docjev-takeaways strong { display: block; margin-top: 9px; font-size: 16px; line-height: 1.3; }
+
+    .benchmark-head { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, .6fr); gap: 46px; align-items: end; padding: 30px 0 22px; }
+    .benchmark-head h2 { max-width: 980px; margin: 0; font-size: clamp(3.3rem, 5vw, 5rem); font-weight: 600; line-height: .96; letter-spacing: -.04em; text-wrap: balance; }
+    .benchmark-head h2 span { color: var(--accent); }
+    .benchmark-head p { margin: 0; color: var(--ink-2); font-size: 16px; line-height: 1.45; }
     .charts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-    .chart { min-width: 0; margin: 0; padding: 22px; border: 1px solid var(--line); background: var(--warm); }
-    .chart h2 { margin: 0; font-size: 18px; font-weight: 650; letter-spacing: -.02em; }
-    .chart-subtitle { min-height: 38px; margin: 5px 0 24px; color: var(--ink-3); font-size: 12px; line-height: 1.45; }
-    .bars { display: grid; gap: 18px; }
-    .bar-row { display: grid; gap: 7px; padding: 10px; }
-    .bar-label { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; }
-    .bar-label strong { font-size: 13px; font-weight: 650; }
-    .bar-label span { color: var(--ink-2); font: 600 11px/1 var(--font-proof); font-variant-numeric: tabular-nums; }
-    .bar-track { height: 10px; border-left: 1px solid var(--ink-3); background: #e1e4e2; }
-    .bar-fill { width: 100%; height: 100%; transform: scaleX(var(--scale)); transform-origin: left center; background: #747b84; }
-    .bar-row.jev { background: var(--accent-soft); }
-    .bar-row.jev .bar-fill { background: var(--accent); }
-    .chart figcaption { min-height: 44px; margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--ink-3); font-size: 11px; line-height: 1.45; }
-    .takeaway { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 24px; border-block: 1px solid var(--ink); }
-    .takeaway div { padding: 18px 20px; }
-    .takeaway div + div { border-left: 1px solid var(--line); }
-    .takeaway span { display: block; color: var(--accent); font: 600 10px/1 var(--font-proof); letter-spacing: .07em; }
-    .takeaway strong { display: block; margin-top: 16px; font-size: 15px; line-height: 1.35; }
-    .page-title { display: grid; grid-template-columns: 1.2fr .8fr; gap: 72px; align-items: end; padding: 44px 0 36px; }
-    .page-title h2 { max-width: 790px; margin: 0; font-size: clamp(2.8rem, 4.3vw, 4.5rem); font-weight: 600; line-height: 1; letter-spacing: -.04em; }
-    .page-title p { margin: 0; color: var(--ink-2); font-size: 15px; line-height: 1.55; }
+    .chart { min-width: 0; margin: 0; padding: 20px 21px 17px; background: var(--warm); border: 1px solid var(--line); }
+    .chart h3 { margin: 0; font-size: 22px; }
+    .chart-subtitle { min-height: 31px; margin: 5px 0 15px; color: var(--ink-3); font-size: 12px; line-height: 1.4; }
+    .chart .compare-row { grid-template-columns: 128px minmax(0, 1fr) 77px; min-height: 40px; }
+    .chart .compare-row.jev { margin-inline: -7px; padding-inline: 7px; background: var(--accent-soft); }
+    .chart figcaption { margin-top: 14px; padding-top: 11px; border-top: 1px solid var(--line); color: var(--ink-3); font-size: 11px; line-height: 1.4; }
+    .benchmark-bottom { display: grid; grid-template-columns: 1.2fr .8fr; gap: 26px; margin-top: 17px; }
     .protocol { display: grid; grid-template-columns: repeat(4, 1fr); border-block: 1px solid var(--ink); }
-    .protocol div { min-height: 190px; padding: 22px 20px; }
+    .protocol div { padding: 14px 15px; }
     .protocol div + div { border-left: 1px solid var(--line); }
-    .protocol span { color: var(--accent); font: 600 10px/1 var(--font-proof); letter-spacing: .07em; }
-    .protocol h3 { margin: 44px 0 8px; font-size: 17px; letter-spacing: -.02em; }
-    .protocol p { margin: 0; color: var(--ink-2); font-size: 13px; line-height: 1.5; }
-    .audit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; margin-top: 34px; }
-    .audit { border-top: 1px solid var(--ink); }
-    .audit h3 { margin: 0; padding: 18px 0; font-size: 18px; border-bottom: 1px solid var(--line); }
-    .audit-row { display: grid; grid-template-columns: 90px 1fr; gap: 18px; padding: 16px 0; border-bottom: 1px solid var(--line); }
-    .audit-row strong { font-size: 13px; }
-    .audit-row p { margin: 0; color: var(--ink-2); font-size: 12px; line-height: 1.5; }
-    .readiness { padding: 20px 22px; background: var(--accent-soft); border-top: 1px solid var(--accent); }
-    .readiness strong { display: block; color: var(--accent); font-size: 20px; }
-    .readiness p { margin: 9px 0 0; color: var(--ink-2); font-size: 13px; line-height: 1.55; }
-    .limitations { margin: 18px 0 0; padding-left: 18px; color: var(--ink-2); font-size: 12px; line-height: 1.5; }
-    .limitations li { margin: 6px 0; }
-    .footer { display: flex; justify-content: space-between; gap: 30px; margin-top: 34px; padding-top: 18px; border-top: 1px solid var(--ink); color: var(--ink-3); font: 500 10px/1.5 var(--font-proof); }
-    .footer a { color: var(--accent); }
+    .protocol b { color: var(--accent); font: 600 9px/1 var(--font-proof); }
+    .protocol span { display: block; margin-top: 8px; color: var(--ink-2); font-size: 12px; line-height: 1.35; }
+    .ledger { padding-top: 13px; border-top: 1px solid var(--ink); }
+    .ledger h3 { margin: 0 0 8px; font-size: 15px; }
+    .ledger p { margin: 0; color: var(--ink-2); font-size: 11.5px; line-height: 1.45; }
+    .ledger p + p { margin-top: 5px; }
+    .ledger strong { color: var(--ink); }
+
+    .page-nav { position: fixed; z-index: 10; right: 18px; top: 50%; display: grid; gap: 7px; transform: translateY(-50%); }
+    .page-nav button { width: 38px; height: 38px; padding: 0; color: var(--ink-3); background: rgba(255,255,255,.94); border: 1px solid var(--line); cursor: pointer; font: 600 10px/1 var(--font-proof); }
+    .page-nav button:hover, .page-nav button[aria-current="page"] { color: var(--paper); background: var(--accent); border-color: var(--accent); }
+    @media (prefers-reduced-motion: no-preference) {
+      .page-nav button { transition: color 160ms ease-out, background 160ms ease-out, border-color 160ms ease-out; }
+    }
+    @media (max-width: 1000px) {
+      .page { padding: 22px 28px 20px; }
+      .topline { padding-bottom: 11px; }
+      .brand { font-size: 15px; }
+      .brand-mark { width: 23px; height: 23px; }
+      .meta { max-width: 300px; font-size: 9px; text-align: right; }
+      .page-heading { grid-template-columns: 1.25fr .75fr; gap: 28px; padding: 23px 0 18px; }
+      .page-heading h1, .page-heading h2 { font-size: 45px; }
+      .page-heading p { font-size: 14px; }
+      .thesis { grid-template-columns: minmax(0, 1fr) 170px; gap: 20px; }
+      .thesis .page-heading { display: block; }
+      .thesis .page-heading p { max-width: 34ch; margin-top: 14px; }
+      .complexity { padding: 14px; }
+      .complexity del { font-size: 23px; }
+      .complexity strong { font-size: 43px; }
+      .complexity span { font-size: 11px; }
+      .stage { min-height: 147px; padding: 14px 16px; }
+      .stage h3 { margin-top: 22px; font-size: 18px; }
+      .stage p { font-size: 11.5px; }
+      .fixture { grid-template-columns: 1fr 1.1fr; gap: 20px; margin-top: 16px; }
+      .fixture-copy h3 { font-size: 18px; }
+      .fixture-copy p { font-size: 11px; }
+      .funnel strong { font-size: 28px; }
+      .funnel span { font-size: 9px; }
+      .source-note { font-size: 11px; }
+      .task-panel { padding: 14px 16px 12px; }
+      .task-panel h3 { font-size: 19px; }
+      .metric-group { padding-top: 9px; }
+      .compare-row { grid-template-columns: 78px minmax(0, 1fr) 72px; gap: 7px; min-height: 23px; }
+      .compare-row b { font-size: 11.5px; }
+      .compare-row output { font-size: 10px; }
+      .bar-track { height: 12px; }
+      .docjev-takeaways div { padding: 11px 12px; }
+      .docjev-takeaways strong { font-size: 13px; }
+      .benchmark-head { grid-template-columns: 1.35fr .65fr; gap: 28px; padding: 24px 0 18px; }
+      .benchmark-head h2 { font-size: 43px; }
+      .benchmark-head p { font-size: 13px; }
+      .charts { gap: 10px; }
+      .chart { padding: 15px 13px 13px; }
+      .chart h3 { font-size: 17px; }
+      .chart-subtitle { min-height: 29px; font-size: 9.5px; }
+      .chart .compare-row { grid-template-columns: 67px minmax(0, 1fr) 54px; min-height: 34px; }
+      .chart .compare-row b { font-size: 11px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+      .chart figcaption { font-size: 9px; }
+      .benchmark-bottom { grid-template-columns: 1.25fr .75fr; gap: 18px; }
+      .protocol div { padding: 10px; }
+      .protocol span, .ledger p { font-size: 9.5px; }
+      .page-footer { margin-top: 12px; font-size: 9.2px; }
+      .page-nav { right: 7px; }
+      .page-nav button { width: 32px; height: 32px; }
+    }
     @media print {
       @page { size: A4 landscape; margin: 0; }
+      html { scroll-snap-type: none; }
       body { min-width: 0; background: #fff; }
       .report { width: 100%; max-width: none; border: 0; }
-      .page { min-height: 210mm; padding: 13mm 15mm; break-after: page; }
+      .page { min-height: 210mm; height: 210mm; padding: 10mm 13mm 9mm; break-after: page; }
       .page:last-child { break-after: auto; }
       .page + .page { border-top: 0; }
-      .hero h1 { font-size: 43px; }
-      .page-title h2 { font-size: 36px; }
+      .page-nav { display: none; }
+      .page-heading { padding-block: 9mm 7mm; }
+      .page-heading h1, .page-heading h2, .benchmark-head h2 { font-size: 34px; }
     }
   </style>
 </head>
 <body>
-  <!-- THESIS: The reader sees all three outcome charts before any methodology. OWN-WORLD: Proofpress Boardroom Clarity, reduced to a two-page evidence brief. STORY: result first, then protocol and limits. FIRST VIEWPORT: three bar charts show latency, cost, and accuracy without interaction. FORM: desktop-first HTML and A4 landscape PDF. FINISH: both formats rebuild from sanitized aggregate evidence. -->
+  <!-- THESIS: JevGraph is understood as a bounded evidence pipeline, not another prompt-to-triples demo. OWN-WORLD: Proofpress Boardroom Clarity with white paper, warm evidence fields, black rules, and one teal signal. STORY: see the end-to-end mechanism, inspect DocJev's adjacent document evidence, then judge JevGraph's relation benchmark and tradeoff. FIRST VIEWPORT: a large pipeline claim, O(n²) to O(nk), five stages, and the pinned E2E funnel. FORM: one self-contained three-screen field report with scroll, keyboard navigation, and three-page print. FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance. -->
+  <nav class="page-nav" aria-label="Report pages">
+    <button type="button" data-page="project" aria-label="Go to project overview" aria-current="page">1</button>
+    <button type="button" data-page="docjev" aria-label="Go to DocJev benchmark">2</button>
+    <button type="button" data-page="relation" aria-label="Go to relation benchmark">3</button>
+  </nav>
   <main class="report">
-    <section class="page" aria-labelledby="result-title">
-      <header class="topline"><div class="brand"><span class="brand-mark" aria-hidden="true"></span>JevGraph / benchmark brief</div><div class="meta">V0.5.1 · 160 CASES · REASONING NONE</div></header>
-      <div class="hero">
-        <div><h1 id="result-title">Jev is the <span>fastest</span> option in this relation-selection run.</h1><p>It also has the lowest planning-cost signal. Accuracy is lower than both chat comparators, so the result is an operational tradeoff - not a general model ranking.</p></div>
-        <div class="headline-metrics"><div><strong>431 ms</strong><span>Jev p95 latency</span></div><div><strong>0.410¢</strong><span>per 100 planned decisions · illustrative</span></div><div><strong>87.50%</strong><span>planned-case accuracy</span></div></div>
+    <section class="page" id="project" aria-labelledby="project-title">
+      <header class="topline"><div class="brand"><span class="brand-mark" aria-hidden="true"></span>JevGraph / project brief</div><div class="meta">Open source · v0.5.1 · Evidence first</div></header>
+      <div class="thesis">
+        <div class="page-heading"><div><h1 id="project-title">From documents to a <span>bounded candidate graph.</span></h1></div><p>JevGraph replaces open-ended triple generation with local parsing, ontology-aware candidate blocking, typed relation decisions, and deterministic evidence gates.</p></div>
+        <aside class="complexity" aria-label="Candidate complexity reduction"><del>O(n²)</del><strong>O(nk)</strong><span>Block locally before asking a model. The reduction comes from bounded neighbors and ontology type constraints.</span></aside>
       </div>
-      <div class="charts" id="charts"></div>
-      <div class="takeaway"><div><span>VS LUNA</span><strong>3.94× lower p95 latency</strong></div><div><span>VS DEEPSEEK</span><strong>2.88× lower p95 latency</strong></div><div><span>COST SIGNAL</span><strong>2.99–3.56× lower</strong></div><div><span>ACCURACY GAP</span><strong>-1.875 to -5.625 pp</strong></div></div>
-      <footer class="footer"><span>Cost: Jev illustrative input list-price equivalent; Luna and DeepSeek provider receipts.</span><span>FewRel <code>train_wiki</code> · seed 17</span></footer>
+      <div class="pipeline" aria-label="JevGraph pipeline">
+        <article class="stage"><b>INGEST · LOCAL</b><h3>Parse with provenance</h3><p>PDF, DOCX, PPTX, or text → canonical pages, hashes, and evidence offsets.</p></article>
+        <article class="stage"><b>BLOCK · LOCAL</b><h3>Keep plausible pairs</h3><p>Exact mentions + sentence bounds + ontology types + neighbor cap.</p></article>
+        <article class="stage"><b>DECIDE · GATE</b><h3>Select, then validate</h3><p>Jev chooses a typed relation; deterministic checks route proposed / review / rejected.</p></article>
+      </div>
+      <div class="fixture">
+        <div class="fixture-copy"><h3>One pinned fixture, traced end to end.</h3><p>The repository-owned <code>company-events-v1</code> smoke test begins at canonical text. Its local keyword baseline validates pipeline mechanics and exact edge scoring; it does not establish general graph quality.</p></div>
+        <div class="funnel" id="e2e-funnel" aria-label="E2E smoke benchmark flow"></div>
+      </div>
+      <footer class="page-footer"><span>Output: JSON · CSV · Neo4j Cypher · page-local evidence spans</span><span>Candidate decisions are not graph truth or Human Approval.</span></footer>
     </section>
 
-    <section class="page" aria-labelledby="method-title">
-      <header class="topline"><div class="brand"><span class="brand-mark" aria-hidden="true"></span>JevGraph / evidence record</div><div class="meta">DIRECT CLOSED-SET RELATION SELECTION</div></header>
-      <div class="page-title"><h2 id="method-title">Exactly what was measured - and what was not.</h2><p>Each provider saw the same one-case request, the same 16 relation descriptions, and an opaque case ID. Failed calls remain in the denominator and release evidence.</p></div>
-      <div class="protocol"><div><span>INPUT</span><h3>One positive case</h3><p>Sentence plus supplied directed source and target entities.</p></div><div><span>CHOICE</span><h3>16 relations</h3><p>No abstention option in this positive-only sample.</p></div><div><span>EXECUTION</span><h3>160 requests / model</h3><p>Sequential, temperature 0, 55 s timeout, no retry or fallback.</p></div><div><span>SCORE</span><h3>Planned-case accuracy</h3><p>Uncovered cases count incorrect. Original gold-bearing IDs stay local.</p></div></div>
-      <div class="audit-grid">
-        <div class="audit"><h3>Failure ledger</h3><div class="audit-row"><strong>Jev</strong><p>HTTP 503 at offset 98; unknown cost; no retry; continuation at 99.</p></div><div class="audit-row"><strong>DeepSeek</strong><p><code>prediction_outside_criteria</code>; known cost; receipt retained; no retry.</p></div><div class="audit-row"><strong>Luna</strong><p>160 / 160 valid scored decisions.</p></div></div>
-        <div><div class="readiness"><strong>Ready to publish as a scoped benchmark.</strong><p>Reproducible configuration, opaque provider IDs, retained failures, sanitized receipts, checksums, and explicit cost basis are all present.</p></div><ul class="limitations" id="limitations"></ul></div>
+    <section class="page" id="docjev" aria-labelledby="docjev-title">
+      <header class="topline"><div class="brand"><span class="brand-mark" aria-hidden="true"></span>DocJev / adjacent document evidence</div><div class="meta">40 documents · 8 packets · single pass</div></header>
+      <div class="page-heading"><div><h2 id="docjev-title">Fast document decisions, with <span>one visible split tradeoff.</span></h2></div><p>In DocJev's published pilot, Jev matched Luna on 40-way document classification and was faster and cheaper on both tasks. Luna was exact on all eight split packets; Jev added one boundary.</p></div>
+      <div class="docjev-intro">
+        <div class="source-note"><strong>Adjacent evidence—not a JevGraph E2E score.</strong> JevGraph uses DocJev + LiteParse locally for parsing; its hosted classification and splitting are not invoked by the ingestion command.</div>
       </div>
-      <footer class="footer"><span>Does not test entity extraction, candidate generation, negative rejection, graph truth, or Human Approval.</span><span><a id="evidence-link" href="#">Aggregate JSON</a> · <a id="release-link" href="#">Release bundle</a></span></footer>
+      <div class="docjev-grid" id="docjev-results"></div>
+      <div class="docjev-takeaways" id="docjev-takeaways"></div>
+      <footer class="page-footer"><span>Decision latency excludes OCR. Costs are recorded estimates; local compute is excluded.</span><span><a id="docjev-source" href="#">Published DocJev report</a></span></footer>
+    </section>
+
+    <section class="page" id="relation" aria-labelledby="relation-title">
+      <header class="topline"><div class="brand"><span class="brand-mark" aria-hidden="true"></span>JevGraph / direct relation benchmark</div><div class="meta">FewRel train_wiki · 160 planned · reasoning none</div></header>
+      <div class="benchmark-head"><h2 id="relation-title"><span>2.9–3.9×</span> lower latency and cost signals—at lower accuracy.</h2><p>Same 160 supplied entity pairs, same 16 relation descriptions, one opaque case per request, temperature 0, sequential execution, and no retries or fallback.</p></div>
+      <div class="charts" id="relation-charts"></div>
+      <div class="benchmark-bottom">
+        <div class="protocol"><div><b>TASK</b><span>Choose 1 of 16 relations</span></div><div><b>REQUESTS</b><span>160 per model · batch 1</span></div><div><b>FAILURES</b><span>Remain in denominator</span></div><div><b>COST</b><span>Per 100 planned cases</span></div></div>
+        <div class="ledger"><h3>Failure ledger</h3><p><strong>Jev:</strong> one HTTP 503 with unknown cost; no retry; non-overlapping continuation.</p><p><strong>DeepSeek:</strong> one known-cost output outside criteria; receipt retained; no retry.</p></div>
+      </div>
+      <footer class="page-footer"><span>Jev cost is illustrative input list-price equivalent; chat costs are provider receipts.</span><span><a id="relation-evidence" href="#">Aggregate evidence</a> · <a id="release-link" href="#">v0.5.1 release</a></span></footer>
     </section>
   </main>
   <script>
-    const report = {"release":"v0.5.1","date":"2026-09-20","taskMode":"direct_closed_set_relation_only","fewrel":{"split":"train_wiki","source_revision":"278a2315d2138810a379cd8d5718914dc56e2582","seed":17,"relations":16,"cases_per_relation":10,"planned_cases":160,"positive_only":true},"request":{"choice_set":"relations-only","batch_size":1,"temperature":0,"execution":"sequential","retries":0,"fallbacks":0,"timeout_seconds":55,"provider_case_ids":"opaque case_00000-style IDs","chat_max_output_tokens":4096,"chat_reasoning_effort":"none"},"models":[{"key":"typesafe-ai/jev","name":"Jev","costBasis":"illustrative","accuracy":0.875,"coverage":0.99375,"successful":159,"attempted":160,"p50":313,"p95":431,"runtime":51969,"inputTokens":156228,"outputTokens":29404,"totalCostUsd":0.006561576,"costPer100Cents":0.4100985,"unknownCostRequests":1,"failureModes":[]},{"key":"openai/gpt-5.6-luna","name":"GPT-5.6 Luna","costBasis":"receipt","accuracy":0.89375,"coverage":1.0,"successful":160,"attempted":160,"p50":1164,"p95":1699,"runtime":195616,"inputTokens":82418,"outputTokens":2592,"totalCostUsd":0.019594,"costPer100Cents":1.224625,"unknownCostRequests":0,"failureModes":[]},{"key":"deepseek/deepseek-v4.1-flash","name":"DeepSeek V4.1 Flash","costBasis":"receipt","accuracy":0.93125,"coverage":0.99375,"successful":159,"attempted":160,"p50":691,"p95":1242,"runtime":120437,"inputTokens":83739,"outputTokens":2270,"totalCostUsd":0.023389532,"costPer100Cents":1.46184575,"unknownCostRequests":0,"failureModes":["One known-cost prediction_outside_criteria receipt; the case was not retried."]}],"costAudit":{"controlled_chat_rerun_known_provider_cost_usd":0.042983532,"all_v0_4_known_provider_cost_usd":0.177021484,"unknown_cost_requests":1,"conservative_first_run_ceiling_usd":1.798564168,"conservative_controlled_chat_rerun_ceiling_usd":1.7849515,"combined_conservative_ceiling_usd":3.583515668,"project_absolute_cap_usd":5.0},"limitations":["The supplied pair makes this relation identification, not end-to-end graph construction.","Jev does not expose an equivalent chat reasoning-effort control in this protocol.","Gateway usage does not expose a separate reasoning-token count, so output usage cannot be decomposed further.","Provider choices are candidate decisions, not graph truth, calibration evidence, or human approval."],"releaseUrl":"https://github.com/chenmingtang830/jevgraph/releases/tag/v0.5.1","evidenceUrl":"../evidence/direct-reasoning-none-2026-09-20.json"};
-    const defs = [
-      { title: 'p95 latency', subtitle: 'Lower is better · milliseconds', value: m => m.p95, format: v => `${new Intl.NumberFormat('en-US').format(v)} ms`, caption: 'Measured request latency.' },
-      { title: 'Cost / 100 planned', subtitle: 'Lower is better · cents', value: m => m.costPer100Cents, format: v => `${v.toFixed(3)}¢`, caption: 'Jev is illustrative; chat values are receipts.' },
-      { title: 'Planned-case accuracy', subtitle: 'Higher is better · uncovered cases count incorrect', value: m => m.accuracy * 100, format: v => `${v.toFixed(v % 1 ? 3 : 2)}%`, caption: 'Same 160-case denominator.' }
+    const report = {"release":"v0.5.1","date":"2026-09-20","taskMode":"direct_closed_set_relation_only","fewrel":{"split":"train_wiki","source_revision":"278a2315d2138810a379cd8d5718914dc56e2582","seed":17,"relations":16,"cases_per_relation":10,"planned_cases":160,"positive_only":true},"request":{"choice_set":"relations-only","batch_size":1,"temperature":0,"execution":"sequential","retries":0,"fallbacks":0,"timeout_seconds":55,"provider_case_ids":"opaque case_00000-style IDs","chat_max_output_tokens":4096,"chat_reasoning_effort":"none"},"models":[{"key":"typesafe-ai/jev","name":"Jev","costBasis":"illustrative","accuracy":0.875,"coverage":0.99375,"successful":159,"attempted":160,"p50":313,"p95":431,"runtime":51969,"inputTokens":156228,"outputTokens":29404,"totalCostUsd":0.006561576,"costPer100Cents":0.4100985,"unknownCostRequests":1,"failureModes":[]},{"key":"openai/gpt-5.6-luna","name":"GPT-5.6 Luna","costBasis":"receipt","accuracy":0.89375,"coverage":1.0,"successful":160,"attempted":160,"p50":1164,"p95":1699,"runtime":195616,"inputTokens":82418,"outputTokens":2592,"totalCostUsd":0.019594,"costPer100Cents":1.224625,"unknownCostRequests":0,"failureModes":[]},{"key":"deepseek/deepseek-v4.1-flash","name":"DeepSeek V4.1 Flash","costBasis":"receipt","accuracy":0.93125,"coverage":0.99375,"successful":159,"attempted":160,"p50":691,"p95":1242,"runtime":120437,"inputTokens":83739,"outputTokens":2270,"totalCostUsd":0.023389532,"costPer100Cents":1.46184575,"unknownCostRequests":0,"failureModes":["One known-cost prediction_outside_criteria receipt; the case was not retried."]}],"costAudit":{"controlled_chat_rerun_known_provider_cost_usd":0.042983532,"all_v0_4_known_provider_cost_usd":0.177021484,"unknown_cost_requests":1,"conservative_first_run_ceiling_usd":1.798564168,"conservative_controlled_chat_rerun_ceiling_usd":1.7849515,"combined_conservative_ceiling_usd":3.583515668,"project_absolute_cap_usd":5.0},"limitations":["The supplied pair makes this relation identification, not end-to-end graph construction.","Jev does not expose an equivalent chat reasoning-effort control in this protocol.","Gateway usage does not expose a separate reasoning-token count, so output usage cannot be decomposed further.","Provider choices are candidate decisions, not graph truth, calibration evidence, or human approval."],"e2eSmoke":{"name":"company-events-v1","scope":"configured_e2e_from_canonical_text","provider":"local keyword-baseline-v1","mentions":12,"candidates":15,"proposed":4,"rejected":11,"review":0,"gold_edges":4,"true_positive_edges":4,"false_positive_edges":0,"false_negative_edges":0,"candidate_recall":1.0,"edge_precision":1.0,"edge_recall":1.0,"edge_f1":1.0,"character_span_integrity":1.0,"provider_reported_cost_usd":0.0,"claim_boundary":"Repository-owned smoke/regression fixture; not external evidence of general KG quality."},"docjev":{"run":"real-small-v1-run01","recorded_at":"2026-09-19T17:58:58.512745+00:00","source_revision":"9ed0fe05984ce1906af9272b8b400c8d46520f98","source_url":"https://github.com/jerryjliu/docjev/blob/9ed0fe05984ce1906af9272b8b400c8d46520f98/benchmarks/results/real-small-v1-run01/report.md","scope":"Curated convenience sample of 40 short English public-sector PDFs; eight constructed split packets; single pass; agent-assisted labels without human review.","classify":{"jev":{"quality":1.0,"completed":40,"planned":40,"p50_ms":138.6,"p95_ms":184.5,"cost_usd":0.005028},"luna":{"quality":1.0,"completed":40,"planned":40,"p50_ms":794.3,"p95_ms":1208.8,"cost_usd":0.024406}},"split":{"jev":{"quality":0.875,"completed":8,"planned":8,"p50_ms":209.6,"p95_ms":290.0,"cost_usd":0.006635},"luna":{"quality":1.0,"completed":8,"planned":8,"p50_ms":1352.3,"p95_ms":1862.7,"cost_usd":0.022488}}},"releaseUrl":"https://github.com/chenmingtang830/jevgraph/releases/tag/v0.5.1","evidenceUrl":"../evidence/direct-reasoning-none-2026-09-20.json","projectEvidenceUrl":"../evidence/project-report-2026-09-20.json"};
+    const format = new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 });
+    const ratio = (a, b) => a / b;
+
+    const funnel = [
+      [report.e2eSmoke.mentions, 'mentions'],
+      [report.e2eSmoke.candidates, 'candidate pairs'],
+      [report.e2eSmoke.proposed, 'proposed edges'],
+      [report.e2eSmoke.true_positive_edges, 'correct edges']
     ];
-    document.querySelector('#charts').innerHTML = defs.map(def => {
-      const max = Math.max(...report.models.map(def.value));
-      const rows = report.models.map(model => { const value = def.value(model); return `<div class="bar-row ${model.name === 'Jev' ? 'jev' : ''}"><div class="bar-label"><strong>${model.name}</strong><span>${def.format(value)}</span></div><div class="bar-track"><div class="bar-fill" style="--scale:${value / max}"></div></div></div>`; }).join('');
-      return `<figure class="chart"><h2>${def.title}</h2><p class="chart-subtitle">${def.subtitle}</p><div class="bars">${rows}</div><figcaption>${def.caption}</figcaption></figure>`;
+    document.querySelector('#e2e-funnel').innerHTML = funnel.map(([value, label]) => `<div><strong>${value}</strong><span>${label}</span></div>`).join('');
+
+    const docjevTasks = [
+      ['classify', 'Classify documents', '40 / 40 planned'],
+      ['split', 'Split packets', '8 / 8 planned']
+    ];
+    const docjevMetrics = [
+      ['quality', 'First-pass quality', value => `${(value * 100).toFixed(value === 1 ? 0 : 1)}%`],
+      ['p95_ms', 'Decision p95', value => `${format.format(value)} ms`],
+      ['cost_usd', 'Known API cost', value => `$${value.toFixed(6)}`]
+    ];
+    document.querySelector('#docjev-results').innerHTML = docjevTasks.map(([key, title, count]) => {
+      const task = report.docjev[key];
+      const groups = docjevMetrics.map(([metric, label, valueFormat]) => {
+        const values = [task.jev[metric], task.luna[metric]];
+        const max = Math.max(...values);
+        const rows = [['Jev', task.jev[metric], 'jev'], ['GPT-5.6 Luna', task.luna[metric], '']]
+          .map(([name, value, klass]) => `<div class="compare-row ${klass}"><b>${name}</b><div class="bar-track"><div class="bar-fill" style="--scale:${value / max}"></div></div><output>${valueFormat(value)}</output></div>`).join('');
+        return `<div class="metric-group"><div class="metric-title"><span>${label}</span></div>${rows}</div>`;
+      }).join('');
+      return `<article class="task-panel"><header><h3>${title}</h3><span>${count}</span></header>${groups}</article>`;
     }).join('');
-    document.querySelector('#limitations').innerHTML = report.limitations.map(item => `<li>${item}</li>`).join('');
-    document.querySelector('#evidence-link').href = report.evidenceUrl;
+
+    const dj = report.docjev;
+    const docjevTakeaways = [
+      ['CLASSIFY P95', `${ratio(dj.classify.luna.p95_ms, dj.classify.jev.p95_ms).toFixed(2)}× lower`],
+      ['CLASSIFY COST', `${ratio(dj.classify.luna.cost_usd, dj.classify.jev.cost_usd).toFixed(2)}× lower`],
+      ['SPLIT P95', `${ratio(dj.split.luna.p95_ms, dj.split.jev.p95_ms).toFixed(2)}× lower`],
+      ['SPLIT QUALITY', '87.5% vs 100% exact']
+    ];
+    document.querySelector('#docjev-takeaways').innerHTML = docjevTakeaways.map(([label, value]) => `<div><span>${label}</span><strong>${value}</strong></div>`).join('');
+
+    const relationDefs = [
+      { title: 'p95 latency', subtitle: 'Lower is better · milliseconds', value: model => model.p95, show: value => `${format.format(value)} ms`, caption: 'Jev: 431 ms · 3.94× below Luna and 2.88× below DeepSeek.' },
+      { title: 'Cost / 100 planned', subtitle: 'Lower is better · cents', value: model => model.costPer100Cents, show: value => `${value.toFixed(3)}¢`, caption: 'Jev illustrative; Luna and DeepSeek are provider receipts.' },
+      { title: 'Planned-case accuracy', subtitle: 'Higher is better · uncovered cases count incorrect', value: model => model.accuracy * 100, show: value => `${value.toFixed(value % 1 ? 3 : 2)}%`, caption: 'Accuracy gap: Jev −1.875 pp vs Luna; −5.625 pp vs DeepSeek.' }
+    ];
+    document.querySelector('#relation-charts').innerHTML = relationDefs.map(def => {
+      const max = Math.max(...report.models.map(def.value));
+      const rows = report.models.map(model => {
+        const value = def.value(model);
+        const displayName = model.name.replace('GPT-5.6 ', '').replace(' V4.1 Flash', '');
+        return `<div class="compare-row ${model.name === 'Jev' ? 'jev' : ''}"><b>${displayName}</b><div class="bar-track"><div class="bar-fill" style="--scale:${value / max}"></div></div><output>${def.show(value)}</output></div>`;
+      }).join('');
+      return `<figure class="chart"><h3>${def.title}</h3><p class="chart-subtitle">${def.subtitle}</p>${rows}<figcaption>${def.caption}</figcaption></figure>`;
+    }).join('');
+
+    document.querySelector('#docjev-source').href = report.docjev.source_url;
+    document.querySelector('#relation-evidence').href = report.evidenceUrl;
     document.querySelector('#release-link').href = report.releaseUrl;
+
+    const pages = [...document.querySelectorAll('.page')];
+    const navButtons = [...document.querySelectorAll('.page-nav button')];
+    navButtons.forEach(button => button.addEventListener('click', () => document.querySelector(`#${button.dataset.page}`).scrollIntoView()));
+    const observer = new IntersectionObserver(entries => {
+      const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (!visible) return;
+      navButtons.forEach(button => button.toggleAttribute('aria-current', button.dataset.page === visible.target.id));
+    }, { threshold: [.45, .7] });
+    pages.forEach(page => observer.observe(page));
+    document.addEventListener('keydown', event => {
+      if (!['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp'].includes(event.key)) return;
+      const current = Math.max(0, pages.findIndex(page => page.getBoundingClientRect().top >= -window.innerHeight * .45));
+      const direction = ['ArrowDown', 'PageDown'].includes(event.key) ? 1 : -1;
+      const target = pages[Math.min(pages.length - 1, Math.max(0, current + direction))];
+      if (target) { event.preventDefault(); target.scrollIntoView(); }
+    });
   </script>
 </body>
 </html>

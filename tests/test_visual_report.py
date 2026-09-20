@@ -19,6 +19,7 @@ def test_visual_report_is_self_contained_and_uses_cents_per_100(tmp_path: Path) 
     output = tmp_path / "index.html"
     module.build(
         evidence_path=ROOT / "docs/evidence/direct-reasoning-none-2026-09-20.json",
+        project_evidence_path=ROOT / "docs/evidence/project-report-2026-09-20.json",
         template_path=ROOT / "docs/report/template.html",
         output_path=output,
     )
@@ -28,6 +29,13 @@ def test_visual_report_is_self_contained_and_uses_cents_per_100(tmp_path: Path) 
     assert "0.4100985" in rendered
     assert "1.224625" in rendered
     assert "1.46184575" in rendered
+    assert 'id="project"' in rendered
+    assert 'id="docjev"' in rendered
+    assert 'id="relation"' in rendered
+    assert "1208.8" in rendered
+    assert "1862.7" in rendered
+    assert "company-events-v1" in rendered
+    assert rendered.count('class="page"') == 3
     assert "<link rel=\"stylesheet\"" not in rendered
     assert "<script src=" not in rendered
     assert json.loads(
