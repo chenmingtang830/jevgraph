@@ -94,6 +94,7 @@ def test_chat_gateway_honors_configured_output_ceiling(monkeypatch: pytest.Monke
         approved_budget_usd=0.05,
         call_ceiling=1,
         max_output_tokens=4096,
+        reasoning_effort="none",
     )
 
     client.classify(
@@ -102,7 +103,9 @@ def test_chat_gateway_honors_configured_output_ceiling(monkeypatch: pytest.Monke
     )
 
     assert FakeClient.last_content is not None
-    assert json.loads(FakeClient.last_content)["max_tokens"] == 4096
+    sent = json.loads(FakeClient.last_content)
+    assert sent["max_tokens"] == 4096
+    assert sent["reasoning"] == {"effort": "none"}
 
 
 def test_chat_gateway_rejects_missing_case_without_leaking_text(

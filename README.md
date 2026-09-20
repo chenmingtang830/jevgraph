@@ -14,7 +14,7 @@ It is designed for fixed or slowly changing ontologies where edge precision, sou
 reproducibility matter. It does **not** claim that model output is true, approved, or safe for
 consequential reuse.
 
-## v0.4 direct relation-selection benchmark
+## v0.4.1 controlled direct relation-selection benchmark
 
 The current primary benchmark measures exactly one operation: relation identification for an
 already supplied candidate pair. Every model receives the same single case and must return one of
@@ -30,23 +30,24 @@ allowed relations: P50 author, P57 director, … (16 total)
 
 The provider only sees an opaque `case_00042` identifier. The original FewRel ID (which can include
 the gold relation) stays local to scoring. On pinned `train_wiki` (16 relations × 10 cases, seed
-17), batch size one, temperature zero, no retries/fallbacks, and 55-second timeout:
+17), batch size one, temperature zero, no retries/fallbacks, 55-second timeout, and explicit chat
+`reasoning.effort="none"`:
 
 | Metric | Jev | GPT-5.6 Luna | DeepSeek V4.1 Flash |
 | --- | ---: | ---: | ---: |
-| Planned-case accuracy | 87.50% | **93.75%** | 93.125% |
+| Planned-case accuracy | 87.50% | 89.375% | **93.125%** |
 | Coverage | 99.375% | 100% | 99.375% |
 | Successful / attempted requests | 159 / 160 | 160 / 160 | 159 / 160 |
-| p50 / p95 latency | 313 / 431 ms | 1,769 / 4,104 ms | 2,276 / 15,627 ms |
-| Sequential runtime | 51.97 s | 333.86 s | 639.61 s |
-| Input / output tokens | 156,228 / 29,404 | 82,418 / 15,446 | 87,709 / 76,936 |
-| Provider-reported cost | $0 | $0.0350188 | $0.099019152 |
+| p50 / p95 latency | 313 / 431 ms | 1,164 / 1,699 ms | 691 / 1,242 ms |
+| Sequential runtime | 51.97 s | 195.62 s | 120.44 s |
+| Input / output tokens | 156,228 / 29,404 | 82,418 / 2,592 | 83,739 / 2,270 |
+| Provider-reported cost | $0 | $0.019594 | $0.023389532 |
 | Jev illustrative input-price equivalent | $0.006561576 | — | — |
 
 The result is a narrow public-sample measurement, not a general model ranking or an end-to-end KG
 score. It does not measure entity extraction, candidate generation, negative rejection, graph
 truth, calibration, or human approval. The full protocol, failures, and cost audit are in
-[the results](docs/RESULTS.md) and [aggregate evidence](docs/evidence/direct-2026-09-20.json).
+[the results](docs/RESULTS.md) and [aggregate evidence](docs/evidence/direct-reasoning-none-2026-09-20.json).
 
 ## Why
 
@@ -137,7 +138,8 @@ uv run jevgraph benchmark \
   --seed 17 \
   --batch-size 1 \
   --choice-set relations-only \
-  --max-output-tokens 4096
+  --max-output-tokens 4096 \
+  --reasoning-effort none
 
 # Live model: one candidate pair per request; explicit budget and artifact path required.
 uv run jevgraph benchmark \
@@ -163,6 +165,7 @@ uv run jevgraph benchmark \
   --seed 17 \
   --choice-set relations-only \
   --max-output-tokens 4096 \
+  --reasoning-effort none \
   --approved-budget-usd 1.25 \
   --call-ceiling 160 \
   --continue-after-known-failure \

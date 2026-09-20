@@ -28,7 +28,7 @@ from .providers import (
     JevProvider,
     KeywordProvider,
 )
-from .providers.chat import MAX_OUTPUT_TOKENS
+from .providers.chat import MAX_OUTPUT_TOKENS, REASONING_EFFORTS
 
 
 def parser() -> argparse.ArgumentParser:
@@ -36,7 +36,7 @@ def parser() -> argparse.ArgumentParser:
         prog="jevgraph",
         description="Build evidence-backed candidate knowledge graphs with typed decisions.",
     )
-    root.add_argument("--version", action="version", version="jevgraph 0.4.0")
+    root.add_argument("--version", action="version", version="jevgraph 0.4.1")
     commands = root.add_subparsers(dest="command", required=True)
 
     build = commands.add_parser("build", help="Build a candidate graph from one text document.")
@@ -75,6 +75,12 @@ def parser() -> argparse.ArgumentParser:
         type=int,
         default=MAX_OUTPUT_TOKENS,
         help="Chat-model completion cap; ignored by Jev's evaluation protocol.",
+    )
+    benchmark.add_argument(
+        "--reasoning-effort",
+        choices=REASONING_EFFORTS,
+        default="provider-default",
+        help="Explicit chat-model reasoning effort; provider-default preserves legacy behavior.",
     )
     benchmark.add_argument(
         "--continue-after-known-failure",
@@ -248,6 +254,7 @@ def _benchmark(args: argparse.Namespace) -> int:
                 batch_size=args.batch_size,
                 choice_set=args.choice_set,
                 chat_max_output_tokens=args.max_output_tokens,
+                chat_reasoning_effort=args.reasoning_effort,
             )
         )
         return 0
@@ -384,6 +391,7 @@ def _chat_client(args: argparse.Namespace, model: str) -> GatewayChatClient:
         approved_budget_usd=args.approved_budget_usd,
         call_ceiling=args.call_ceiling,
         max_output_tokens=args.max_output_tokens,
+        reasoning_effort=args.reasoning_effort,
     )
 
 

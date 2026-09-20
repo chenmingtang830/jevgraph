@@ -125,6 +125,7 @@ def benchmark_plan(
     batch_size: int,
     choice_set: str = "relations-plus-abstentions",
     chat_max_output_tokens: int | None = None,
+    chat_reasoning_effort: str = "provider-default",
 ) -> dict[str, Any]:
     _validate_choice_set(choice_set)
     output_cap = chat_max_output_tokens or MAX_OUTPUT_TOKENS
@@ -149,6 +150,7 @@ def benchmark_plan(
                     for case in batch
                 },
                 max_output_tokens=output_cap,
+                reasoning_effort=chat_reasoning_effort,
             )
             for batch in batches
         ]
@@ -185,6 +187,7 @@ def benchmark_plan(
         "note": "Estimate is not a provider quote or hard billing cap.",
     }
     plan["chat_max_output_tokens"] = output_cap
+    plan["chat_reasoning_effort"] = chat_reasoning_effort
     return plan
 
 
@@ -342,6 +345,7 @@ def run_chat_benchmark(
             choice_set=choice_set,
             batch_size=batch_size,
             max_output_tokens=client.max_output_tokens,
+            reasoning_effort=client.reasoning_effort,
         ),
     )
     criteria = _criteria(sample, choice_set)
@@ -557,6 +561,7 @@ def _benchmark_config(
     choice_set: str,
     batch_size: int,
     max_output_tokens: int | None = None,
+    reasoning_effort: str | None = None,
 ) -> dict[str, Any]:
     config: dict[str, Any] = {
         "task_mode": (
@@ -572,6 +577,7 @@ def _benchmark_config(
         "relation_count": len(sample.relation_ids),
         "temperature": 0,
         "max_output_tokens": max_output_tokens,
+        "reasoning_effort": reasoning_effort,
         "retries": 0,
         "fallbacks": 0,
         "timeout_seconds": 55,
