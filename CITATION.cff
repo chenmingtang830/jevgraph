@@ -5,7 +5,15 @@ type: software
 authors:
   - family-names: Tang
     given-names: Richard
-version: 0.1.1
+version: 0.5.1
 date-released: 2026-09-20
 repository-code: https://github.com/chenmingtang830/jevgraph
 license: Apache-2.0
+references:
+  - type: software
+    title: DocJev
+    authors:
+      - family-names: Liu
+        given-names: Jerry
+    repository-code: https://github.com/jerryjliu/docjev
+    notes: Optional local document-ingestion dependency created with the LlamaIndex community.

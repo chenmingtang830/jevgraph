@@ -2,6 +2,8 @@
 
 **Build evidence-backed candidate knowledge graphs with typed relation decisions.**
 
+![JevGraph turns documents into evidence-backed candidate graphs](docs/assets/jevgraph-overview.svg)
+
 JevGraph is an open-source, schema-guided document-to-graph pipeline. It replaces open-ended
 “prompt → triples” extraction with bounded, inspectable stages:
 
@@ -14,6 +16,15 @@ PDF / DOCX / PPTX / text → local parsing + canonical page map → entity menti
 It is designed for fixed or slowly changing ontologies where edge precision, source evidence, and
 reproducibility matter. It does **not** claim that model output is true, approved, or safe for
 consequential reuse.
+
+## Benchmark at a glance
+
+| p95 latency | Cost / 100 decisions | Planned-case accuracy |
+| --- | --- | --- |
+| [![p95 latency benchmark](docs/assets/benchmark-latency.svg)](docs/assets/benchmark-latency.svg) | [![cost benchmark](docs/assets/benchmark-cost.svg)](docs/assets/benchmark-cost.svg) | [![accuracy benchmark](docs/assets/benchmark-accuracy.svg)](docs/assets/benchmark-accuracy.svg) |
+
+All bars start at zero. Jev cost is an illustrative list-price equivalent; Luna and DeepSeek use
+provider receipts. The accuracy chart shows the tradeoff alongside the cost and latency advantage.
 
 ## v0.5.1 controlled direct relation-selection benchmark
 
@@ -57,6 +68,17 @@ truth, calibration, or human approval. The full protocol, failures, and cost aud
 [the results](docs/RESULTS.md), [visual report](docs/report/README.md),
 [two-page PDF](output/pdf/jevgraph-v0.5.1-direct-relation-report.pdf), and
 [aggregate evidence](docs/evidence/direct-reasoning-none-2026-09-20.json).
+
+## Credits
+
+JevGraph's optional document-ingestion path builds on
+[`DocJev`](https://github.com/jerryjliu/docjev), created by Jerry Liu and the LlamaIndex community.
+DocJev provides the pinned local document-conversion path used with LiteParse metadata to preserve
+canonical pages and source-page evidence mapping. See [Acknowledgements](ACKNOWLEDGEMENTS.md) and
+[NOTICE](NOTICE) for the exact boundary, pinned revision, licenses, and FewRel attribution.
+
+Maintainers should follow the [release checklist](docs/RELEASING.md). Tagged releases are rebuilt,
+checksummed, and accompanied by GitHub build-provenance attestations.
 
 ## Why
 
