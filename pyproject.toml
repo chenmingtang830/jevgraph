@@ -30,7 +30,7 @@ documents = [
   "docjev @ git+https://github.com/jerryjliu/docjev.git@9ed0fe05984ce1906af9272b8b400c8d46520f98",
 ]
 dev = [
-  "pytest>=8,<9",
+  "pytest>=8,<10",
   "pytest-cov>=5,<7",
   "reportlab>=4,<5",
   "ruff>=0.9,<1",
